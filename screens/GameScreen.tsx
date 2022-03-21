@@ -1,21 +1,28 @@
 import { StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState, useReducer, useContext } from 'react';
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
-import {StatusBar, TextInput} from 'react-native';
 import Game from '../game/Game';
+import LevelScore from './LevelScore';
+import { LinearGradient } from 'expo-linear-gradient';
+import LevelProvider from '../game/Providers/LevelProvider';
 
-export default function GameScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({headerShown: false});
-  }, [navigation]);
-
-  const [wordGuess, setWordGuess] = useState("");
+export default function GameScreen({ route, navigation }) {
+  const { level_id } = route.params;
 
   return (
-    <View style={styles.window}>
-      <Game />
+    <View style={{...styles.window}}>
+      <LinearGradient
+        // Background Linear Gradient
+        start ={{x: 0, y: 0}}
+        end = {{x:1, y:1}}
+        colors={['#EFBCED', '#B4EBEE', '#BED5F6']}
+        style={{...styles.background}}>
+          <LevelProvider levelid={level_id}>
+            <Game navigation={navigation} />
+          </LevelProvider>
+      </LinearGradient>
     </View>
   );
 }
@@ -25,60 +32,16 @@ const styles = StyleSheet.create({
     height: 100,
     fontSize: 50
   },
-  actionboard:{
-    backgroundColor:'#F7EDED',
-    flex: 1,
-    flexDirection: 'column',
-    borderRadius: 15,
-    marginLeft: 30,
-    marginRight: 30,
-    marginBottom: 10,
-    padding: 20,
-    marginTop: 40,
-    alignItems: 'center',
-    justifyContent: 'center' 
+  background:{
+    position: 'absolute',
+    left: 0,
+    height: "100%",
+    right: 0,
   },
   window: {
-    backgroundColor:'#E8F6F6',
-    flex: 1,
+    backgroundColor:'#766F73',
+    height: "100%",
     flexDirection: 'column',
     justifyContent: 'space-between' 
-  },
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: "wrap",
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    bottom: 0,
-    marginLeft:30,
-    marginRight:30,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-  button:{
-    backgroundColor: '#fff',
-    width: '95%',
-    aspectRatio: 1,
-    borderRadius: 4,
-  },
-  buttonText:{
-    height: '100%',
-    width: '100%',
-    padding: 6,
-    fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    color: '#444'
-  },
-  logo: {width: 302, height:  90}
+  }
 });

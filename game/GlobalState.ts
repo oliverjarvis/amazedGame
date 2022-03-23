@@ -44,16 +44,20 @@ export const globalStateReducer = (state: GlobalState, action: Action): GlobalSt
         case 'set-level-score':
 
             let levelstates: LevelState[] = state.levels;
+            let level_idx = action.payload.level_idx - 1;
+            console.log(levelstates);
             let star_increase = 0;
-            if(levelstates[action.payload.level_idx].stars_achieved < action.payload.stars){
-                levelstates[action.payload.level_idx].stars_achieved = action.payload.stars;
-                star_increase = action.payload.stars - levelstates[action.payload.level_idx].stars_achieved;
+            if(levelstates[level_idx].stars_achieved < action.payload.stars){
+                console.log("stars asdfasd");
+                star_increase = action.payload.stars - levelstates[level_idx].stars_achieved;
+                levelstates[level_idx].stars_achieved = action.payload.stars;
+                console.log(star_increase);
             }
 
             return {
                 ...state,
                 levels: levelstates,
-                total_stars: state.total_stars + 100
+                total_stars: state.total_stars + star_increase
             };
         default:
             return state;
@@ -67,9 +71,11 @@ export function globalStateInitializer(){
         level_data.push({
             level_id: item.maze_id,
             stars_achieved: 0,
-            unlocked: index == 0 ? true : false,
+            unlocked: index == 0 ? true : true,
         });
     });
+
+    console.log(level_data);
     
     return {
         ...initialState,

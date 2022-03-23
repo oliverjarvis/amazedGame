@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { gameManagerContext } from "../GameLogic";
+import { globalContext } from "../GlobalState";
 import { ProgressBar } from "./ProgressBar";
 
 
@@ -25,8 +26,10 @@ const DiamondCount = ({diamongCount}) => {
   };
 
 export const Header = ({level_id}:{level_id? : number}) => {
-    const levelCompletionTime = 2.0;
+    const levelCompletionTime = 200.0;
     const {state, dispatch} = useContext(gameManagerContext);
+    const globalState = useContext(globalContext);
+
     const [time, setTime] = useState(levelCompletionTime);
     const insets = useSafeAreaInsets();
 
@@ -45,9 +48,9 @@ export const Header = ({level_id}:{level_id? : number}) => {
       
     return (
         <View style={{...styles.header, paddingTop:insets.top, paddingBottom: 10}}>
-            <DiamondCount diamongCount={10}/>
+            <DiamondCount diamongCount={globalState.state.total_stars}/>
             <View style={{flexDirection:"column", flexBasis: "60%",  alignItems:"center"}}>
-            <Text style={{color: 'white', fontSize:20, fontWeight: 'bold', paddingBottom: 5, textAlign:"center"}}>Level 19</Text>
+            <Text style={{color: 'white', fontSize:20, fontWeight: 'bold', paddingBottom: 5, textAlign:"center"}}>Level {level_id}</Text>
             <ProgressBar height={25} width={200} progress={time/levelCompletionTime} />
             </View>
             <SettingsIcon/>

@@ -52,7 +52,7 @@ type Action =
     |   { type: 'set-level'; payload: number }
     |   { type: 'select-tile'; payload: number }
     |   { type: 'validate-answer'; payload: {tileIndex: number, guess:string} }
-    |   { type: 'load_level'; payload: {data:LevelData, level: number} }
+    |   { type: 'load_level'; payload: {data: LevelData, level: number} }
     |   { type: 'game-over'; }
     |   { type: 'skip-word'; };
 

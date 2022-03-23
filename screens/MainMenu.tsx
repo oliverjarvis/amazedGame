@@ -12,7 +12,7 @@ const Button = ({text, onPress}) => {
     <View style={buttonstyle.button}>
       <TouchableOpacity onPress={onPress} style={buttonstyle.insetStyle}>
         <View style={buttonstyle.outsetStyle}>
-          <Text style={{fontSize: 25,  fontWeight:'bold', textAlign: 'center', textAlignVertical:"center", color: '#fff'}}>{ text }</Text>
+          <Text style={{fontSize: 25,  fontWeight:'bold', textAlign: 'center', textAlignVertical:"center", color: '#444'}}>{ text }</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#293D46',
+    backgroundColor: '#fdfdfd',
   },
   title: {
     fontSize: 70,
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   buttonText:{
     fontSize: 20,
-    color: '#fff'
+    color: '#444'
   },
   buttonbg:{
     marginTop: "10%",
@@ -95,17 +95,15 @@ let buttonstyle = StyleSheet.create({
   insetStyle:{
     width: "80%",
     alignContent: "center",
-    borderRadius: 5,
+    borderRadius: 15,
     justifyContent: 'flex-start',
-    backgroundColor: 'transparent',
+    backgroundColor: '#A88600',
   },
   outsetStyle:{
     width: "100%",
     height: '92%',
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: "#ffc000",
-    backgroundColor: 'transparent',
+    borderRadius: 15,
+    backgroundColor: '#ffc000',
     justifyContent: 'center',
   },
 });

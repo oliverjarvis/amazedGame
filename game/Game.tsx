@@ -8,6 +8,7 @@ import {keyboardContext, keyboardReducer} from './Components/Keyboard/KeyboardLo
 import LevelScore from '../screens/LevelScore';
 import { Header } from './Components/Header';
 import LevelProvider from './Providers/LevelProvider';
+import { globalContext } from './GlobalState';
 
 const Game = ({navigation}:{navigation:any}) => {
 
@@ -20,7 +21,7 @@ const Game = ({navigation}:{navigation:any}) => {
 
     return (
         <>
-          <Header/>
+          <Header level_id={state.level}/>
           <ActionBoard/>
           <BoardView/>
           <keyboardContext.Provider value={ {keyboardstate, keyboarddispatch} }>

@@ -1,101 +1,59 @@
-import { StyleSheet, TouchableWithoutFeedback, TouchableNativeFeedback } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { TouchableOpacity, FlatList } from 'react-native';
-import LottieView from 'lottie-react-native';
-
-import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { globalContext } from '../game/GlobalState';
-import { useContext, useReducer, useRef, useState } from 'react';
-import { Header } from '../game/Components/Header';
+import { useContext, useEffect, useReducer, useRef, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { easylevels } from '../assets/levels/easy/levels_metadata';
 
 import { Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Shimmer from 'react-native-shimmer';
 const windowHeight = Dimensions.get('window').height;
 
-
-const DATA = [
-  {
-    id: 'easy-1',
-    level_number: 1,
-    title: 'Mine',
-    complete: true,
-    perfect: true,
-  },
-  {
-    id: 'easy-2',
-    level_number: 2,
-    title: 'Snow',
-    complete: true,
-  },
-  {
-    id: 'easy-3',
-    level_number: 2,
-    title: 'Snow',
-    complete: false,
-  }
-];
-
-const ShinyGradient = (props: any) => {
-  return (
-    <LinearGradient
-        // Background Linear Gradient
-        start ={{x: 0, y: 0}}
-        end = {{x:1.0, y:1}}
-        pointerEvents='none'
-        colors={['rgba(255, 208, 0, 1.0)', 'rgba(253, 208, 0, 0.9)', 'rgba(255, 208, 0, 0.5)','rgba(253, 208, 0, 0.9)', 'rgba(253, 208, 0, 1.0)']}
-        style={{height: "80%", justifyContent: 'center', alignItems: 'center', aspectRatio: 1, borderRadius:9999, overflow: 'hidden'}}>
-          {props.children}
-          <LottieView source={require('./layer.json')} autoPlay loop={true} style={{position:'absolute', width: "100%", zIndex: 1000}}/>
-    </LinearGradient>);
-}
-
-const PerfectLevelIcon = ({item}) => {
-  return (
-    <>
-      <View pointerEvents='none' style={{width: "22%", elevation: 4, backgroundColor: "white", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-        <ShinyGradient>
-          <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{item.level_number}</Text>
-        </ShinyGradient>
-      </View>
-      <LottieView source={require('./4436-celebrating-stars.json')} autoPlay loop={false} style={{ position:'absolute', height: "100%", width: "100%", zIndex: 1000}}/>
-      </> 
-  );
-}
-
-const CompletedLevelIcon = ({item}) => {
-  return (
-    <TouchableOpacity onPress={() => console.log("hello")}>
-      <View style={{width: "22%", backgroundColor: "transparent", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-          <View style={{width: "80%", elevation: 0, backgroundColor: "gold", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-            <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{item.level_number}</Text>
-          </View>
-      </View>
-      </TouchableOpacity>
-  );
-}
-
-const OpenLevelIcon = ({item}) => {
-  return (
-      <View style={{width: "22%", backgroundColor: "transparent", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-          <View style={{width: "80%", elevation: 1, backgroundColor: "#E4C5ED", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-            <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{item.level_number}</Text>
-          </View>
-      </View>
-  );
-}
-
-const DifficultyButton = ({ text, onPress, selected }) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={{width: "25%", height: "70%", backgroundColor: selected ? '#E4C5ED' : 'white', borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
-      <Text style={{fontSize: 20, color: "#444", fontWeight: 'bold'}}>{text}</Text>
-    </TouchableOpacity>
-  );
-}
-
+import {OpenLevelIcon, PerfectLevelIcon, CompletedLevelIcon, DifficultyButton} from '../components/LevelSelectorComponents';
 
 
 export default function LevelSelector({ navigation }) {
+  
+  const storeData = async (key, value) => {
+    try {
+      await AsyncStorage.setItem(key, value)
+    } catch (e) {
+      // saving error
+    }
+  }
+
+
+
+  const getData = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem('@easy-1')
+      if(value !== null) {
+        // value previously stored
+        setData([JSON.parse(value)]);
+      }else{
+        //if empty we must add atleast one, right?
+        const LEVEL_KEY = "@easy-1";
+        const level_data = {
+          ...easylevels[0],
+          completed: false,
+          perfect: false,
+        }
+        storeData(LEVEL_KEY, JSON.stringify(level_data));
+        console.log("added level 1");
+      }
+    } catch(e) {
+      console.log("No data attached")
+    }
+  }
+
+  useEffect(() => {
+    getData("@easy-1")
+  }, [])
+
+  const [data, setData] = useState([]);
+
   let level_count = 30;
   
   const Item = ({ item, backgroundColor, textColor }) => (
@@ -127,6 +85,10 @@ export default function LevelSelector({ navigation }) {
     );
   };
 
+  const clearAsyncStorage = async() => {
+    AsyncStorage.clear();
+    console.log("byebye");
+  }
 
   const { state } = useContext(globalContext);
   const [difficulty, setDifficulty] = useState<'easy' | 'normal' | 'hard'>('easy');
@@ -141,10 +103,10 @@ export default function LevelSelector({ navigation }) {
     <View style={styles.container}>
       <View style={{flex: 1, backgroundColor: "#fff"}}>
          <FlatList 
-          initialScrollIndex={2} 
+          initialScrollIndex={0} 
           ref={flatListRef} 
           contentContainerStyle={{paddingTop: windowHeight / 2.1, paddingBottom: windowHeight / 5}} 
-          data={DATA} 
+          data={data} 
           style={{flex:1}} 
           renderItem={renderItem} 
           keyExtractor={item => item.id} 
@@ -157,7 +119,7 @@ export default function LevelSelector({ navigation }) {
         colors={['transparent','transparent',  'transparent',  'transparent', 'transparent',  'transparent', 'rgba(0,0,0,0.6)']}
         style={{...styles.background}}/>
       <View style={{backgroundColor: 'white', height: windowHeight / 10, width: "100%", flexDirection: "row", alignItems: 'center', justifyContent: 'space-evenly'}}>
-        <DifficultyButton onPress={() => {setDifficulty("easy"); handleItemPress("1")}} selected={difficulty == "easy"} text="Easy"/>
+        <DifficultyButton onPress={() => {setDifficulty("easy"); handleItemPress("0"); clearAsyncStorage()}} selected={difficulty == "easy"} text="Easy"/>
         <DifficultyButton onPress={() => setDifficulty("normal")} selected={difficulty == "normal"} text="Normal"/>
         <DifficultyButton onPress={() => setDifficulty("hard")} selected={difficulty == "hard"} text="Hard"/>
       </View>

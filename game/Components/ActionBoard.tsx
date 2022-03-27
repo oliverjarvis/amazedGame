@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 import { gameManagerContext } from '../GameLogic';
 
-const dictionary: dictionaryData = require('../../assets/leveldata/four-word-defs.json');
+const dictionary: dictionaryData = require('../../assets/dictionary/four-word-defs.json');
 
 const ActionBoard = () => {
     const {state, dispatch} = useContext(gameManagerContext);

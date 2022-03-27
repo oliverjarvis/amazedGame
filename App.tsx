@@ -2,7 +2,7 @@
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
-import { globalStateReducer, globalContext, initialState, globalStateInitializer} from "./game/GlobalState";
+import { globalStateReducer, globalContext, initialState} from "./game/GlobalState";
 import { useReducer } from 'react';
 
 
@@ -10,7 +10,7 @@ export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
   
-  const [state, dispatch] = useReducer(globalStateReducer, initialState, globalStateInitializer);
+  const [state, dispatch] = useReducer(globalStateReducer, initialState);
   
   if (!isLoadingComplete) {
     return null;

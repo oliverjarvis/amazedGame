@@ -90,7 +90,7 @@ export default function LevelScore({navigation, gameOver, hasWon, completedWords
           colors={['#FED392', '#FFFBF5', '#FED392']}
           style={{...styles.background}}>
                 <View style={{flexDirection:"column", width:"100%", marginTop: "10%", height: "20%", alignItems:'center', position: 'absolute', top: 0}}>
-                  {hasWon ? <LottieView style={{flex: 1}} source={require('./74694-confetti.json')} autoPlay loop/> : <LottieView style={{flex: 1}} source={require('./56450-game-over.json')} autoPlay loop={false}/>}
+                  {hasWon ? <LottieView style={{flex: 1}} source={require('../assets/lottiefiles/74694-confetti.json')} autoPlay loop/> : <LottieView style={{flex: 1}} source={require('../assets/lottiefiles/56450-game-over.json')} autoPlay loop={false}/>}
                 </View>
                 <View style={{flexDirection:"column", height:"70%", marginBottom: "5%", width: "100%", alignItems:'center'}}>
                   <Text style={{fontSize: 30, fontWeight: 'bold'}}>LEVEL {state.level}</Text>

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useReducer } from 'react';
-import { gameReducer, gameManagerContext, initialState, gameStateInitializer} from "./GameLogic";
+import { gameReducer, gameManagerContext, initialState} from "./GameLogic";
 import BoardView from './Components/TileBoard';
 import ActionBoard from './Components/ActionBoard';
 import InputTiles from './Components/InputTiles';

@@ -1,6 +1,6 @@
 import { useReducer, useEffect } from "react";
-import { gameReducer, gameManagerContext, initialState, gameStateInitializer} from "../GameLogic";
-import { levels } from "../../assets/leveldata/levels.js";
+import { gameReducer, gameManagerContext, initialState} from "../GameLogic";
+import { levels } from "../../assets/levels/easy/levels_metadata";
 
 interface LevelData
 {
@@ -18,7 +18,7 @@ export default function LevelProvider(props: any){
         data && dispatch({type: "load_level", payload: {data: data, level: props.levelid}});
       }, []);
 
-    const [state, dispatch] = useReducer(gameReducer, initialState, gameStateInitializer);
+    const [state, dispatch] = useReducer(gameReducer, initialState);
     
     return (
         <gameManagerContext.Provider value={ {state, dispatch} }>

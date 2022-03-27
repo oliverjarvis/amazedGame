@@ -1,5 +1,4 @@
 import { createContext } from 'react';
-const data: LevelData = require('../assets/leveldata/data1.json');
 
 interface LevelData
 {
@@ -129,7 +128,7 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
         }
 }
 
-export function gameStateInitializer(){
+/*export function gameStateInitializer(){
     let gameTiles: TileState[] = [];
     let adjacent_to: number[] = [];
     data.maze.forEach((item, index) => {
@@ -153,7 +152,7 @@ export function gameStateInitializer(){
         prevWord: "",
         tiles: gameTiles
     }
-}
+}*/
 
 export const gameManagerContext = createContext<{
                         state: GameState,

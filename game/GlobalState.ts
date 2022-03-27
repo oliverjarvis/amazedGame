@@ -1,16 +1,4 @@
-import { createContext, useContext } from 'react';
-const data: LevelData = require('../assets/leveldata/leveldata.json');
-
-interface LevelData
-{
-    mazes:{
-        maze_id: number,
-        maze: {
-            word: string,
-            adjacent_to: number[],
-        }[]
-    }[]
-}
+import { createContext } from 'react';
 
 type LevelState = {
     level_id: number,
@@ -64,7 +52,7 @@ export const globalStateReducer = (state: GlobalState, action: Action): GlobalSt
     }
 };
 
-export function globalStateInitializer(){
+/*export function globalStateInitializer(){
 
     let level_data: LevelState[] = [];
     data.mazes.forEach((item, index) => {
@@ -81,7 +69,7 @@ export function globalStateInitializer(){
         ...initialState,
         levels: level_data,
     }
-}
+}*/
 
 export const globalContext = createContext<{
         state: GlobalState,

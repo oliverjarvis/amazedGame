@@ -1,15 +1,25 @@
 import React, { useEffect } from 'react';
 import { Alert, View, Text, Pressable, Modal, StyleSheet, FlatList } from 'react-native';
 import { useContext } from 'react';
-import { globalContext } from '../game/GlobalState';
 import { TileState } from '../game/GameLogic';
 import { LinearGradient } from 'expo-linear-gradient';
 import { gameManagerContext } from '../game/GameLogic';
 import LottieView from 'lottie-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { useDispatch } from 'react-redux';
+import { setLevelProgress } from '../redux/actions';
+import { CompletionType } from '../redux/interfaces';
+
+
+enum CompletionState {
+  unlocked = "u",
+  locked = "l",
+  completed = "c",
+  perfected = "p"
+}
 
 const FailButtons = ({navigation}:{navigation:any}) => {
-  const { state, dispatch } = useContext(globalContext);
-
   return (
     <View style={{flexDirection:"column", width:"80%", alignItems:'center'}}>
       <Pressable style={styles.buttonNext} onPress={() => { navigation.push("GameScreen", {level_id: 1})}}>
@@ -53,23 +63,30 @@ const ScoreDisplayer = ({diamondCount}) => {
 
 export default function LevelScore({navigation, gameOver, hasWon, completedWords}:{navigation: any, hasWon: boolean, gameOver: boolean, completedWords: TileState[]}) {
   const word_data = completedWords.map((word, index) => { return {title: word, id:index + ""} });
-  const { dispatch } = useContext(globalContext);
   const { state } = useContext(gameManagerContext);
   const [visible, setVisible] = React.useState(false);
   const [diamondCount, setDiamondCount] = React.useState(0);
+
+  const dispatch = useDispatch();
 
 
   useEffect(() => {
     if(gameOver){
       let completed_words = completedWords.filter(item => item.tileMode == "completed").length;
-      let score = completed_words * 100;
-      setDiamondCount(score);
-      console.log("level");
-      dispatch({ type: 'set-level-score', payload: {stars: score, level_idx: state.level } });
+
+      let result: any;
+
+      if(completed_words == completedWords.length){
+        result = CompletionType.perfected;
+      }else if(hasWon){
+        result = CompletionType.completed;
+      }
+      if(hasWon){
+        dispatch(setLevelProgress(result));
+      }
+
     }
   }, [gameOver])
-
-  
   
   return (
     <Modal

@@ -1,11 +1,10 @@
 import { StyleSheet, Image, TouchableOpacity } from 'react-native';
-import EditScreenInfo from '../components/EditScreenInfo';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, View } from '../components/Themed';
-import { StatusBar } from 'expo-status-bar';
+import { useDispatch } from 'react-redux';
+import { reset } from "../redux/actions";
 
 let logo = require('../assets/logo.png');
-
-//import logo from '../assets/logo.png';
 
 const Button = ({text, onPress}) => {
   return (
@@ -19,7 +18,14 @@ const Button = ({text, onPress}) => {
     );
 }
 
+
+
 export default function TabOneScreen({ navigation }) {
+  const dispatch = useDispatch();
+
+  const clearAsyncStorage = async() => {
+    dispatch(reset());
+  }
   return (
     <>
     <View style={styles.container}>
@@ -29,15 +35,14 @@ export default function TabOneScreen({ navigation }) {
       <View style={styles.buttonbg}>
         
         <Button text="Select a Level"  onPress={() => navigation.navigate('LevelSelector')} />
-        <Button text="Credits" onPress={() => navigation.navigate('Credits')} />
+        <Button text="Credits" onPress={() => navigation.navigate('Credits')} />    
+        <Button text="clear storage" onPress={() => clearAsyncStorage()} />    
       </View>
     </View>
     </>
   );
 }
 
-/*<EditScreenInfo path="/screens/TabOneScreen.tsx" />
-*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,

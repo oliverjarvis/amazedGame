@@ -2,23 +2,37 @@
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
-import { globalStateReducer, globalContext, initialState} from "./game/GlobalState";
-import { useReducer } from 'react';
 
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import allReducer from "./redux/reducers/";
+import { persistStore, persistReducer } from 'redux-persist'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PersistGate } from 'redux-persist/integration/react'
 
-export default function App() {
+const persistConfig = {
+  key: 'root',
+  storage: AsyncStorage,
+}
+
+const persistedReducer = persistReducer(persistConfig, allReducer)
+
+const store = createStore(persistedReducer);
+const persistor = persistStore(store)
+
+export default function App() { 
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-  
-  const [state, dispatch] = useReducer(globalStateReducer, initialState);
-  
-  if (!isLoadingComplete) {
+     
+  if (!isLoadingComplete) {   
     return null;
   } else {
     return (
-        <globalContext.Provider value={ {state, dispatch} }>
+      <Provider store={store}>
+        <PersistGate persistor={persistor}>
           <Navigation colorScheme={colorScheme} />
-        </globalContext.Provider>
+        </PersistGate>
+      </Provider>
     );
   }
 }

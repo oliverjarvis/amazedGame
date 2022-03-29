@@ -1,97 +1,90 @@
-import { StyleSheet } from 'react-native';
-import { TouchableOpacity, FlatList } from 'react-native';
-import { Text, View } from '../components/Themed';
-import { globalContext } from '../game/GlobalState';
-import { useContext, useEffect, useReducer, useRef, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { TouchableOpacity, FlatList, StyleSheet, View, Dimensions, Text } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../redux/reducers';
+import { setActiveLevel } from '../redux/actions';
+import { LevelMeta, CompletionType} from '../redux/interfaces';
 
 import { easylevels } from '../assets/levels/easy/levels_metadata';
+import { normallevels } from '../assets/levels/normal/levels_metadata';
+import { hardlevels } from '../assets/levels/hard/levels_metadata';
 
-import { Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { 
+  OpenLevelIcon, 
+  PerfectLevelIcon, 
+  CompletedLevelIcon, 
+  LockedLevel, 
+  DifficultyButton 
+} from '../components/LevelSelectorComponents';
+
+let levels_by_difficulty = {
+  "easy" : easylevels,
+  "normal" : normallevels,
+  "hard": hardlevels
+}
+
 const windowHeight = Dimensions.get('window').height;
 
-import {OpenLevelIcon, PerfectLevelIcon, CompletedLevelIcon, DifficultyButton} from '../components/LevelSelectorComponents';
 
-
+// Main Screen
 export default function LevelSelector({ navigation }) {
-  
-  const storeData = async (key, value) => {
-    try {
-      await AsyncStorage.setItem(key, value)
-    } catch (e) {
-      // saving error
-    }
-  }
 
+  const levelmanager = useSelector((state: RootState) => state.levelmanager);
+  const dispatch = useDispatch();
 
-
-  const getData = async (key) => {
-    try {
-      const value = await AsyncStorage.getItem('@easy-1')
-      if(value !== null) {
-        // value previously stored
-        setData([JSON.parse(value)]);
-      }else{
-        //if empty we must add atleast one, right?
-        const LEVEL_KEY = "@easy-1";
-        const level_data = {
-          ...easylevels[0],
-          completed: false,
-          perfect: false,
-        }
-        storeData(LEVEL_KEY, JSON.stringify(level_data));
-        console.log("added level 1");
-      }
-    } catch(e) {
-      console.log("No data attached")
-    }
-  }
-
-  useEffect(() => {
-    getData("@easy-1")
-  }, [])
-
+  const [difficulty, setDifficulty] = useState<'easy' | 'normal' | 'hard' | null>(null);
+  const [refreshFlatlist, setRefreshFlatlist] = useState(false);
   const [data, setData] = useState([]);
 
-  let level_count = 30;
-  
-  const Item = ({ item, backgroundColor, textColor }) => (
-    <View style={{backgroundColor: 'white', height: windowHeight / 3}}>
-      <View style={{backgroundColor:'transparent', flex: 1, flexDirection: "column", alignItems: 'center'}}>
-        <View style={{alignItems: 'center', justifyContent: 'flex-start', backgroundColor: 'transparent'}}>
-          {item.complete && item.perfect && <PerfectLevelIcon item={item}/>}
-          {item.complete && !item.perfect && <CompletedLevelIcon item={item}/>}
-          {!item.complete && <OpenLevelIcon item={item}/>}
-          <Text style={{color: 'black', fontWeight: 'bold', marginTop: 10, fontSize: 20}}>‘{item.title}’</Text>
-        </View>
-      </View>
-    </View>
-  );
-  
-  const renderItem = ({ item }) => {
-    function actionOnRow() {
-      console.log('Selected Item :');
-    }
+  useEffect(() => {
+    setDifficulty('easy');
+  }, [])
 
-    return (
-      <TouchableOpacity onPress={() => actionOnRow()}>
-        <Item
-          item={item}
-          backgroundColor={{ backgroundColor: "transparent" }}
-          textColor={{ color: "#444" }}
-        />
-      </TouchableOpacity>
+  useEffect(() => {
+    console.log(levelmanager);
+    setData(levelmanager.levels.filter(item => item.levelDifficulty == difficulty));
+  }, [difficulty]);
+
+  useEffect(() => {
+    setRefreshFlatlist(!refreshFlatlist);
+  }, [data])
+
+      
+  function handleLevelpress(item){
+    dispatch(setActiveLevel(item.levelID, item.levelDifficulty));
+    navigation.navigate('GameScreen', {levelID: item.levelID, levelDifficulty: item.levelDifficulty});
+  };
+ 
+  // Item element
+  const Item = ({ item }: {item: LevelMeta}) => {
+
+    return(
+       <>
+        <View style={{backgroundColor: 'white', height: windowHeight / 3}}>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => handleLevelpress(item)} style={{opacity: 1, backgroundColor:'transparent', flex: 1, flexDirection: "column", alignItems: 'center'}}>
+            <View style={{alignItems: 'center', justifyContent: 'flex-start', backgroundColor: 'transparent'}}>
+              {item.completionType == CompletionType.perfected && <PerfectLevelIcon item={item}/>}
+              {item.completionType == CompletionType.completed &&  <CompletedLevelIcon item={item}/>}
+              {item.completionType == CompletionType.unlocked && <OpenLevelIcon item={item}/>}
+              {item.completionType == CompletionType.locked && <LockedLevel item={item}/>}
+              <Text style={{color: 'black', fontWeight: 'bold', marginTop: 10, fontSize: 20}}>‘hello’</Text>
+          </View>
+        </TouchableOpacity>
+        </View>
+      </>
     );
   };
-
-  const clearAsyncStorage = async() => {
-    AsyncStorage.clear();
-    console.log("byebye");
-  }
-
-  const { state } = useContext(globalContext);
-  const [difficulty, setDifficulty] = useState<'easy' | 'normal' | 'hard'>('easy');
+  
+  // RenderItem element
+  const renderItem = ({ item }) => {
+    return (
+        <Item 
+          item={item} 
+        />
+    );
+  };
 
   const flatListRef = useRef<FlatList>();
 
@@ -99,27 +92,38 @@ export default function LevelSelector({ navigation }) {
     flatListRef.current.scrollToIndex({ animated: true, index });
   };
 
+
+  // Render
   return (
     <View style={styles.container}>
       <View style={{flex: 1, backgroundColor: "#fff"}}>
-         <FlatList 
+         {data.length > 0 && <FlatList 
           initialScrollIndex={0} 
+          onScrollToIndexFailed={info => {
+            const wait = new Promise(resolve => setTimeout(resolve, 100));
+            wait.then(() => {
+              flatListRef.current?.scrollToIndex({ index: 2, animated: true });
+            });
+          }}
           ref={flatListRef} 
-          contentContainerStyle={{paddingTop: windowHeight / 2.1, paddingBottom: windowHeight / 5}} 
+          extraData={refreshFlatlist}
+          contentContainerStyle={ { paddingTop: windowHeight / 2.1, paddingBottom: windowHeight / 5 } } 
           data={data} 
-          style={{flex:1}} 
-          renderItem={renderItem} 
-          keyExtractor={item => item.id} 
-        />
+          style={ { flex:1 } } 
+          renderItem= {renderItem} 
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          keyExtractor= {item => {return ( item.levelDifficulty + item.levelID); } } 
+        />}
       </View>
       <LinearGradient
-        // Background Linear Gradient
         start ={{x: 0, y: 0}}
         end = {{x:0, y:1}}
+        pointerEvents = "none"
         colors={['transparent','transparent',  'transparent',  'transparent', 'transparent',  'transparent', 'rgba(0,0,0,0.6)']}
         style={{...styles.background}}/>
-      <View style={{backgroundColor: 'white', height: windowHeight / 10, width: "100%", flexDirection: "row", alignItems: 'center', justifyContent: 'space-evenly'}}>
-        <DifficultyButton onPress={() => {setDifficulty("easy"); handleItemPress("0"); clearAsyncStorage()}} selected={difficulty == "easy"} text="Easy"/>
+      <View style={ { backgroundColor: 'white', height: windowHeight / 10, width: "100%", flexDirection: "row", alignItems: 'center', justifyContent: 'space-evenly' } }>
+        <DifficultyButton onPress={() => {setDifficulty("easy"); handleItemPress(0);}} selected={difficulty == "easy"} text="Easy"/>
         <DifficultyButton onPress={() => setDifficulty("normal")} selected={difficulty == "normal"} text="Normal"/>
         <DifficultyButton onPress={() => setDifficulty("hard")} selected={difficulty == "hard"} text="Hard"/>
       </View>
@@ -169,10 +173,3 @@ const styles = StyleSheet.create({
     width: '80%',
   },
 });
-
-
-/*{Array(level_count).fill(0).map((_, i) => (
-          <TouchableOpacity onPress={ () => navigation.navigate('GameScreen', {level_id: i+1})} key={i} style={styles.square}>
-            <Text style={{textAlign:'center', textAlignVertical:'center', color:"#444", fontSize:25, fontWeight:'bold'}}>{i+1}</Text>
-          </TouchableOpacity>
-        ))}*/

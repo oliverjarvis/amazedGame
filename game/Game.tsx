@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useReducer } from 'react';
-import { gameReducer, gameManagerContext, initialState} from "./GameLogic";
+import React, { useContext, useReducer } from 'react';
+import { gameManagerContext} from "./GameLogic";
 import BoardView from './Components/TileBoard';
 import ActionBoard from './Components/ActionBoard';
 import InputTiles from './Components/InputTiles';
@@ -7,17 +7,13 @@ import KeyboardInput from './Components/Keyboard/Keyboard';
 import {keyboardContext, keyboardReducer} from './Components/Keyboard/KeyboardLogic';
 import LevelScore from '../screens/LevelScore';
 import { Header } from './Components/Header';
-import LevelProvider from './Providers/LevelProvider';
-import { globalContext } from './GlobalState';
+
+import { useSelector } from "react-redux";
 
 const Game = ({navigation}:{navigation:any}) => {
 
     const {state} = useContext(gameManagerContext);
     const [keyboardstate, keyboarddispatch] = useReducer(keyboardReducer, {letter: "", occurences: 0});       
-
-    useEffect(() => {
-      console.log(state.gameOver);
-    }, [state.gameOver])
 
     return (
         <>

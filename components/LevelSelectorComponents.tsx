@@ -16,12 +16,19 @@ const ShinyGradient = (props: any) => {
       </LinearGradient>);
   }
   
+  const LevelIcon = ({backgroundColor, itemid}) => (
+    <View style={{width: "22%", backgroundColor: "transparent", aspectRatio: 1, borderRadius: 0, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
+      <View style={{width: "80%", elevation: 1, backgroundColor: backgroundColor, aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
+        <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{itemid + 1}</Text>
+      </View>
+    </View>);
+
   export const PerfectLevelIcon = ({item}) => {
     return (
       <>
         <View pointerEvents='none' style={{width: "22%", elevation: 4, backgroundColor: "white", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
           <ShinyGradient>
-            <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{item.id}</Text>
+            <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{item.levelID + 1}</Text>
           </ShinyGradient>
         </View>
         <LottieView source={require('../assets/lottiefiles/4436-celebrating-stars.json')} autoPlay loop={false} style={{ position:'absolute', height: "100%", width: "100%", zIndex: 1000}}/>
@@ -29,27 +36,17 @@ const ShinyGradient = (props: any) => {
     );
   }
   
-  export const CompletedLevelIcon = ({item}) => {
-    return (
-      <TouchableOpacity onPress={() => console.log("hello")}>
-        <View style={{width: "22%", backgroundColor: "transparent", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-            <View style={{width: "80%", elevation: 0, backgroundColor: "gold", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-              <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{item.id}</Text>
-            </View>
-        </View>
-        </TouchableOpacity>
-    );
-  }
+  export const CompletedLevelIcon = ({item}) => (
+    <LevelIcon backgroundColor={"gold"} itemid = {item.levelID}/>
+  );
   
-  export const OpenLevelIcon = ({item}) => {
-    return (
-        <View style={{width: "22%", backgroundColor: "transparent", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-            <View style={{width: "80%", elevation: 1, backgroundColor: "#E4C5ED", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
-              <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{item.id}</Text>
-            </View>
-        </View>
-    );
-  }
+  export const OpenLevelIcon = ({item}) => (
+    <LevelIcon backgroundColor={"#E4C5ED"} itemid = {item.levelID}/>
+  );
+
+  export const LockedLevel = ({item}) => (
+    <LevelIcon backgroundColor={"lightgray"} itemid = {item.levelID}/>
+  );
 
   export const DifficultyButton = ({ text, onPress, selected }) => {
     return (

@@ -9,8 +9,7 @@ import LevelProvider from '../game/Providers/LevelProvider';
 
 
 export default function GameScreen({ route, navigation }) {
-  const { level_id } = route.params;
-
+  const { levelID, levelDifficulty } = route.params;
   return (
     <View style={{...styles.window}}>
       <LinearGradient
@@ -19,7 +18,7 @@ export default function GameScreen({ route, navigation }) {
         end = {{x:1, y:1}}
         colors={['#EFBCED', '#B4EBEE', '#BED5F6']}
         style={{...styles.background}}>
-          <LevelProvider levelid={level_id}>
+          <LevelProvider levelID={levelID} levelDifficulty={levelDifficulty}>
             <Game navigation={navigation} />
           </LevelProvider>
       </LinearGradient>

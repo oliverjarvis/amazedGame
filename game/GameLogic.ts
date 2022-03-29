@@ -24,6 +24,7 @@ type GameState = {
     tiles: TileState[],
     arrows: ArrowState[],
     level: number,
+    levelDifficulty: string,
     hasWon: boolean,
     currentWord: string,
     selectedTileIndex: number,
@@ -36,7 +37,8 @@ type GameState = {
 export const initialState: GameState = {
     tiles: [],
     arrows: [],
-    level: 1,
+    level: -1,
+    levelDifficulty: "",
     hasWon: false,
     gameOver: false,
     selectedTileIndex: -1,
@@ -51,7 +53,7 @@ type Action =
     |   { type: 'set-level'; payload: number }
     |   { type: 'select-tile'; payload: number }
     |   { type: 'validate-answer'; payload: {tileIndex: number, guess:string} }
-    |   { type: 'load_level'; payload: {data: LevelData, level: number} }
+    |   { type: 'load_level'; payload: {data: LevelData, level: number, levelDifficulty: string} }
     |   { type: 'game-over'; }
     |   { type: 'skip-word'; };
 
@@ -111,7 +113,7 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
                     tiles[index].tileMode = 'open';
                 }
             });
-            return { ...state, tiles: tiles, level: action.payload.level };
+            return { ...state, tiles: tiles, level: action.payload.level, levelDifficulty: action.payload.levelDifficulty };
         case 'game-over':
             return {...state, gameOver: true};
         case 'skip-word':

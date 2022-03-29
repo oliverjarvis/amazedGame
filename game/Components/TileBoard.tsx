@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {View, StyleSheet, Image} from 'react-native';
 import Tile from './Tile';
 import {gameManagerContext} from '../GameLogic';
@@ -10,6 +10,15 @@ let arrowLeft = require('../../assets/arrowleft.png')
 
 function BoardView() {  
     const {state, dispatch} = useContext(gameManagerContext);
+
+    const [dataloaded, setDataloaded] = useState(false);
+
+    useEffect(()=>{
+      if(state.tiles.length > 0){
+        setDataloaded(true);
+      }
+    }, [state.tiles])
+
     const topdownArrowCount = 12;
     const leftrightArrowCount = 12;
     const element_count = state.tiles.length + topdownArrowCount + leftrightArrowCount;
@@ -35,7 +44,7 @@ function BoardView() {
 
     return (
         <View style={styles.container}>
-          {Array(element_count).fill(0).map((_, index) => {
+          {dataloaded && Array(element_count).fill(0).map((_, index) => {            
             if(tile_coords.includes(index)){
               return (
                 <React.Fragment key={index}>
@@ -70,6 +79,8 @@ function BoardView() {
             }else{
               
               let left_tile = tile_coords.indexOf(index - 1);
+  
+  
               let right_tile = tile_coords.indexOf(index + 1);
 
               let arrow: null | "left" | "right" =  null;

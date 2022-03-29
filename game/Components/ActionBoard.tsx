@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-
+import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 import { gameManagerContext } from '../GameLogic';
 
 const dictionary: dictionaryData = require('../../assets/dictionary/four-word-defs.json');
@@ -12,7 +12,7 @@ const ActionBoard = () => {
 
     return (
       <View style={styles.actionboard}>
-        <Text adjustsFontSizeToFit={true} numberOfLines={2} style={{color:"#444", fontSize:70, margin: "5%", fontWeight:'bold', textAlign:'left'}}>{state.hasWon? "YOU WIN!":dictionaryDef}</Text>
+        <Text adjustsFontSizeToFit={true} numberOfLines={2} style={{color:"#444", fontSize:70, fontWeight:'bold', textAlign:'left'}}>{state.hasWon? "YOU WIN!":dictionaryDef}</Text>
       </View>
     );
   }
@@ -37,13 +37,13 @@ const styles= StyleSheet.create({
         flexDirection: 'column',
         borderRadius: 0,
         flexBasis: '6%',
+        width: '90%',
         flex: 1,
-        marginBottom:"1.25%",
+        marginVertical:"1.25%",
         padding: 0, 
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
         alignItems: 'center',
-        justifyContent: 'center' 
+        justifyContent: 'center',
+        alignSelf: 'center',
     }
 });
 

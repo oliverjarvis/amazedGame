@@ -1,8 +1,8 @@
-import {useContext, useState} from 'react';
+import {useContext, useState, memo} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import keyboardReducer, {keyboardContext} from './KeyboardLogic';
 
-const Key = ({letter, backspace}: {letter?: string, backspace?: boolean}) => {
+const Key = memo(({letter, backspace}: {letter?: string, backspace?: boolean}) => {
     const {keyboarddispatch} = useContext(keyboardContext);
     let [selected, setSelected] = useState(false);
     let style = backspace ? styles.delcard : styles.keycard;
@@ -13,9 +13,9 @@ const Key = ({letter, backspace}: {letter?: string, backspace?: boolean}) => {
           <Text style={{fontSize: 27, color:'white', textAlignVertical:'center', textAlign:'center'}}>{letter!.toLowerCase()}</Text>
       </Pressable>
     );
-  }
+});
   
-  const KeyBoardRow = ({letters, backspace}:{letters: string, backspace?: boolean}) => {
+  const KeyBoardRow = memo(({letters, backspace}:{letters: string, backspace?: boolean}) => {
     return (
       <View style={styles.keyboardtoprow}>
         {Array(letters.length).fill(0).map((item, i) => {
@@ -24,7 +24,7 @@ const Key = ({letter, backspace}: {letter?: string, backspace?: boolean}) => {
         {backspace && <Key backspace={true} />}
       </View>
     );
-  }
+  });
   
 const KeyboardInput = () => {
     let toprowletters: string = "qwertyuiop";
@@ -41,7 +41,7 @@ const KeyboardInput = () => {
     );
   }
 
-export default KeyboardInput;
+export default memo(KeyboardInput);
 
   const styles = StyleSheet.create({
     highlighted:{
@@ -68,8 +68,8 @@ export default KeyboardInput;
       borderRadius: 6,
       backgroundColor: '#293D46',
       width:'9.3%',
+      height: '100%',
       margin:'0.3%',
-      aspectRatio: 0.65,
       justifyContent: 'center',
     },
     delcard:{

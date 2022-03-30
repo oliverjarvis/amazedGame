@@ -1,8 +1,14 @@
-import { StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, Platform } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, View } from '../components/Themed';
 import { useDispatch } from 'react-redux';
 import { reset } from "../redux/actions";
+
+import {
+  AdMobRewarded,
+  setTestDeviceIDAsync,
+} from 'expo-ads-admob';
+
 
 let logo = require('../assets/logo.png');
 
@@ -18,6 +24,33 @@ const Button = ({text, onPress}) => {
     );
 }
 
+async function showInterstitialRewardedAd(){
+  await AdMobRewarded.setAdUnitID('ca-app-pub-3940256099942544/5224354917'); // Test ID, Replace with your-admob-unit-id
+  try{
+    await AdMobRewarded.requestAdAsync();
+  }catch(e){
+    console.log(e);
+  }
+  console.log("adsfasdf");
+  await AdMobRewarded.showAdAsync();
+}
+
+const MiniModal = () => {
+  return (
+    <View style={{position: 'absolute', height: '100%', width: '100%', backgroundColor: "rgba(0,0,0,0.2)", justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{backgroundColor: '#fff', width: "80%", aspectRatio: 3/2, elevation: 5, borderRadius: 20, flexDirection: 'column', justifyContent: 'flex-end'}}>
+          <View style={{flexGrow: 1, backgroundColor: 'transparent', padding: "5%", justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{color: "#444", fontSize: 20}}>Oh no!</Text>
+            <Text style={{color: "#444", fontSize: 20}}>No more skips left!</Text>
+          </View>
+          <TouchableOpacity onPress={() => showInterstitialRewardedAd()} style={{ width: "100%", height: "30%", alignItems: 'center', backgroundColor: 'transparent', borderTopColor: "#999", borderTopWidth: 1, justifyContent: 'center'}}>
+            <Text style={{ color: '#444', fontSize: 20}}>Earn two skips</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+  );
+}
+
 
 
 export default function TabOneScreen({ navigation }) {
@@ -26,6 +59,11 @@ export default function TabOneScreen({ navigation }) {
   const clearAsyncStorage = async() => {
     dispatch(reset());
   }
+ 
+  AdMobRewarded.addEventListener("rewardedVideoUserDidEarnReward", (reward) => {
+    console.log(reward);
+  });
+
   return (
     <>
     <View style={styles.container}>
@@ -36,7 +74,7 @@ export default function TabOneScreen({ navigation }) {
         
         <Button text="Select a Level"  onPress={() => navigation.navigate('LevelSelector')} />
         <Button text="Credits" onPress={() => navigation.navigate('Credits')} />    
-        <Button text="clear storage" onPress={() => clearAsyncStorage()} />    
+        <Button text="clear storage" onPress={() => clearAsyncStorage()} />  
       </View>
     </View>
     </>

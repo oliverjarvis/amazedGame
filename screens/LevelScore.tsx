@@ -11,6 +11,13 @@ import { useDispatch } from 'react-redux';
 import { setLevelProgress } from '../redux/actions';
 import { CompletionType } from '../redux/interfaces';
 
+import {
+  AdMobBanner,
+  AdMobInterstitial,
+  PublisherBanner,
+  AdMobRewarded,
+  setTestDeviceIDAsync,
+} from 'expo-ads-admob';
 
 enum CompletionState {
   unlocked = "u",
@@ -19,13 +26,25 @@ enum CompletionState {
   perfected = "p"
 }
 
+async function showAdsAndNavigate(navigationEvent){
+  await AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712'); // Test ID, Replace with your-admob-unit-id
+  try{
+    await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true});
+  }catch(e){
+    console.log(e);
+  }
+  console.log("adsfasdf");
+  await AdMobInterstitial.showAdAsync();
+  navigationEvent();
+}
+
 const FailButtons = ({navigation}:{navigation:any}) => {
   return (
     <View style={{flexDirection:"column", width:"80%", alignItems:'center'}}>
       <Pressable style={styles.buttonNext} onPress={() => { navigation.push("GameScreen", {level_id: 1})}}>
         <Text style={{fontSize: 20, fontWeight:'bold', textAlign:'center', color:'white'}}>Retry</Text>
       </Pressable>
-      <Pressable style={styles.button} onPress={() => {  navigation.navigate("LevelSelector")}}>
+      <Pressable style={styles.button} onPress={() => { showAdsAndNavigate(() => navigation.navigate("LevelSelector")); }}>
         <Text style={{fontSize: 20, fontWeight:'bold', textAlign:'center', color:"#444"}}>Next</Text>
       </Pressable>
     </View>
@@ -57,8 +76,7 @@ const ScoreDisplayer = ({diamondCount}) => {
       <Text style={styles.modalText}>{diamondCount}</Text>
       <Text style={styles.modalText}>Diamonds earned</Text>
     </View>
-  )
-  
+  ) 
 }
 
 export default function LevelScore({navigation, gameOver, hasWon, completedWords}:{navigation: any, hasWon: boolean, gameOver: boolean, completedWords: TileState[]}) {

@@ -21,7 +21,7 @@ export default function LevelProvider(props: any){
                 level_dat = hardlevels[props.levelID].data;
         }
 
-        level_dat && dispatch({type: "load_level", payload: {data: level_dat, level: props.levelid, levelDifficulty: props.levelDifficulty}});
+        level_dat && dispatch({type: "load_level", payload: {data: level_dat, level: props.levelID, levelDifficulty: props.levelDifficulty}});
       }, []);
 
       

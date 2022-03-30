@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import {Text, View, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import {gameManagerContext, initialState, TileState} from '../GameLogic';
 let Goal = require('../../assets/goal2.png');
 
 
-export default function Tile({tile}: {tile: TileState}) {
+function Tile({tile}: {tile: TileState}) {
 
   const {state, dispatch} = useContext(gameManagerContext);
 
@@ -48,6 +48,8 @@ export default function Tile({tile}: {tile: TileState}) {
     </View>
     );
 }
+
+export default memo(Tile);
 
 const styles = StyleSheet.create({
     outer:{

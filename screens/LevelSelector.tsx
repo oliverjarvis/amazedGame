@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { TouchableOpacity, FlatList, StyleSheet, View, Dimensions, Text } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, FlatList, StyleSheet, View, Dimensions, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -43,12 +43,19 @@ export default function LevelSelector({ navigation }) {
   }, [])
 
   useEffect(() => {
-    console.log(levelmanager);
+    console.log(levelmanager.activeLevel);
+  }, [levelmanager.activeLevel])
+
+  useEffect(() => {
     setData(levelmanager.levels.filter(item => item.levelDifficulty == difficulty));
   }, [difficulty]);
 
   useEffect(() => {
+    const scrolloffset = 2;
     setRefreshFlatlist(!refreshFlatlist);
+    let scrollTo = data.findIndex(item=>item.completionType == CompletionType.unlocked);
+    scrollTo = windowHeight / 3 * scrollTo;
+    flatListRef?.current?.scrollToOffset({ animated: true, offset:scrollTo });
   }, [data])
 
       
@@ -62,6 +69,7 @@ export default function LevelSelector({ navigation }) {
 
     return(
        <>
+       <ActivityIndicator/>
         <View style={{backgroundColor: 'white', height: windowHeight / 3}}>
           <TouchableOpacity activeOpacity={0.8} onPress={() => handleLevelpress(item)} style={{opacity: 1, backgroundColor:'transparent', flex: 1, flexDirection: "column", alignItems: 'center'}}>
             <View style={{alignItems: 'center', justifyContent: 'flex-start', backgroundColor: 'transparent'}}>
@@ -92,6 +100,9 @@ export default function LevelSelector({ navigation }) {
     flatListRef.current.scrollToIndex({ animated: true, index });
   };
 
+  let scrollTo = data.findIndex(item=>item.completionType == CompletionType.unlocked);
+  scrollTo = windowHeight / 3 * scrollTo;
+  flatListRef?.current?.scrollToOffset({ animated: true, offset:scrollTo });
 
   // Render
   return (

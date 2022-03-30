@@ -19,7 +19,9 @@ interface LevelMeta{
 
 interface GameState{
     activeLevel: LevelMeta,
-    levels: LevelMeta[]
+    levels: LevelMeta[],
+    skips: number,
+    hints: number
 }
 
 let levelMeta: LevelMeta[] = 
@@ -34,8 +36,10 @@ let levelMeta: LevelMeta[] =
 levelMeta = [...new Set([...levelMeta])];
 
 let initialGameState: GameState = {
+    hints: 1,
     activeLevel: null,
     levels: levelMeta,
+    skips: 1,
 }
 
 const levelmanagerReducer = (state = initialGameState, action) => {
@@ -43,16 +47,14 @@ const levelmanagerReducer = (state = initialGameState, action) => {
     let levels = state.levels;
     switch(action.type){
         case 'SET-LEVEL-PROGRESS':
-            console.log(state);
             state.levels.forEach((item, index) => {
                 //checking both instead of the whole item, in fear of inconsistency caused by different completion types.
                 if(item.levelID == state.activeLevel.levelID && item.levelDifficulty == state.activeLevel.levelDifficulty){
                     activeLevel.completionType = action.payload.completionType;
                 }
             });
-            return {levels, activeLevel: activeLevel};
+            return {...state, levels, activeLevel: activeLevel};
         case 'SET-ACTIVE-LEVEL':
-            console.log(state.activeLevel);
             state.levels.forEach((item, index) => {
                 if(item.levelDifficulty == action.payload.levelDifficulty){
                     if(item.levelID == action.payload.levelID){
@@ -64,7 +66,16 @@ const levelmanagerReducer = (state = initialGameState, action) => {
                 }
                 
             });
-            return {levels: state.levels, activeLevel};
+            return {...state, activeLevel};
+        case 'INCREMENT-SKIPS':
+            console.log(action.payload);
+            return {...state, skips: (state.skips + action.payload as number)};
+        case 'SPEND-SKIP':
+            return {...state, skips: (state.skips - 1 as number)};
+        case 'INCREMENT-HINT':
+            return {...state, hints: (state.hints + action.payload as number)};
+        case 'SPEND-HINT':
+            return {...state, hints: (state.hints - 1 as number)};
         case 'RESET':
             return {...initialGameState};
         default:

@@ -124,6 +124,7 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
             }
             let hasWon = state.selectedTileIndex == 15;
             let gameOver = hasWon;
+            console.log("skipped");
             return {...state, tiles: gameTiles, hasWon: hasWon, gameOver: gameOver};
         default:
             return initialState;

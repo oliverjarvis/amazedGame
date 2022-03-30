@@ -15,13 +15,40 @@ export const setLevelProgress = (completionType) => {
 }
 
 export const setActiveLevel = (levelID, levelDifficulty) => {
-    console.log(levelDifficulty);
     return {
         type: 'SET-ACTIVE-LEVEL',
         payload: {
             levelID,
             levelDifficulty
         }
+    }
+}
+
+export const incrementSkip = () => {
+    return {
+        type: 'INCREMENT-SKIPS',
+        payload: 2,
+    }
+}
+
+export const spendSkip = () => {
+    return {
+        type: 'SPEND-SKIP',
+        payload: 1,
+    }
+}
+
+export const incrementHint = () => {
+    return {
+        type: "INCREMENT-SKIP",
+        payload: 1,
+    }
+}
+
+export const spendHint = () => {
+    return {
+        type: 'SPEND-HINT',
+        payload: 1,
     }
 }
 

@@ -4,7 +4,7 @@ export enum CompletionType{
     completed = "c",
     perfected = "p"
 };
-  
+
 export interface LevelMeta{
     levelID: string;
     completionType: CompletionType

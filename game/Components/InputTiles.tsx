@@ -1,25 +1,58 @@
-import {useState, useContext, useEffect} from 'react';
-import {View, TouchableWithoutFeedback, Text, StyleSheet} from 'react-native';
+import {useState, useContext, useEffect, memo} from 'react';
+import {View, TouchableWithoutFeedback, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
 import {gameManagerContext} from '../GameLogic';
 import {keyboardContext} from './Keyboard/KeyboardLogic';
 import {HintPowerup, SkipPowerup} from './PowerupBar';
+import { useSelector, useDispatch } from "react-redux";
+
+import { RootState } from '../../redux/reducers';
+import { AdMobRewarded } from 'expo-ads-admob';
+import { spendSkip, incrementSkip } from '../../redux/actions';
 
 let arrowRight = require('../../assets/arrowright.png');
 
-function index_to_xy(index:number){
-  let x = index % 4
-  let y = Math.floor(index / 4);
-  return {x:x, y:y};
+async function showInterstitialRewardedAd(){
+  await AdMobRewarded.setAdUnitID('ca-app-pub-3940256099942544/5224354917'); // Test ID, Replace with your-admob-unit-id
+  try{
+    await AdMobRewarded.requestAdAsync();
+  }catch(e){
+    console.log(e);
+  }
+  console.log("adsfasdf");
+  await AdMobRewarded.showAdAsync();
 }
 
 const InputTiles = () => {
+
+  const MiniModal = memo(() => {
+    return (
+      <View style={{position: 'absolute', height: '100%', width: '100%', backgroundColor: "rgba(0,0,0,0.2)", justifyContent: 'center', alignItems: 'center'}}>
+          <View style={{backgroundColor: '#fff', width: "80%", aspectRatio: 3/2, elevation: 5, borderRadius: 20, flexDirection: 'column', justifyContent: 'flex-end'}}>
+            <View style={{flexGrow: 1, backgroundColor: 'transparent', padding: "5%", justifyContent: 'center', alignItems: 'center'}}>
+              <Text style={{color: "#444", fontSize: 20}}>Oh no!</Text>
+              <Text style={{color: "#444", fontSize: 20}}>No more skips left!</Text>
+            </View>
+            <TouchableOpacity onPress={() => showInterstitialRewardedAd()} style={{ width: "100%", height: "30%", alignItems: 'center', backgroundColor: 'transparent', borderTopColor: "#999", borderTopWidth: 1, justifyContent: 'center'}}>
+              <Text style={{ color: '#444', fontSize: 20}}>Earn two skips</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+    );
+  });
+
   const {keyboardstate} = useContext(keyboardContext);
   const {state, dispatch} = useContext(gameManagerContext);
+
+  const levelmanager = useSelector((state: RootState) => state.levelmanager);
+  const levelManagerDispatch = useDispatch();
+
+
   let tile_count = 4;
   const [keyboardActive, setKeyboardActive] = useState(state.selectedTileIndex != -1);
   const [textValue, setTextValue] = useState("");
   const [fontcolor, setFontcolor] = useState("#444");
+  const [showSkipWordModal, setShowSkipWordModal] = useState(false);
 
   useEffect(() => {
     let text = textValue;
@@ -47,28 +80,37 @@ const InputTiles = () => {
     }
   }, [state.guesses])
 
+  function useSkip(){
+    console.log("hello");
+    if(levelmanager.skips > 0){
+      dispatch({type:'skip-word'});
+      levelManagerDispatch(spendSkip());
+    }else{
+      setShowSkipWordModal(true);
+    }
+  }
+
+  AdMobRewarded.addEventListener("rewardedVideoUserDidEarnReward", () => {
+    levelManagerDispatch(incrementSkip());
+    setShowSkipWordModal(false);
+  });
+
+  AdMobRewarded.addEventListener("rewardedVideoDidDismiss", () =>{
+    console.log("x");
+    if(levelmanager.skips > 0){
+      console.log("a");
+      dispatch({type:'skip-word'});
+      console.log("b");
+    }
+  })
+
   useEffect(() => {
     setFontcolor(state.selectedTileIndex == -1 ? '#fff' : "#F2A6B1");
   }, [state.selectedTileIndex])
-
-  /*let currentTileCoords = index_to_xy(tile.tileIndex);
-  let leftborder = true;
-  let rightborder = true;
-  let topborder = true;
-  let bottomborder = true;*/
-
-  /*if(tile.tileMode == 'completed'){
-    tile.adjacent_to.forEach((item) => {
-      let adjacent_xy = index_to_xy(item);
-      if(adjacent_xy.y < currentTileCoords.y){ topborder = false; }
-      else if(adjacent_xy.y > currentTileCoords.y){ bottomborder = false; }
-      else if(adjacent_xy.x > currentTileCoords.x){ rightborder = false;  }
-      else if(adjacent_xy.x < currentTileCoords.x){ leftborder = false;  }
-    })*/
-
   return (
+        <>
         <View style={styles.outerboard}>
-          <SkipPowerup onPress={() => dispatch({type:'skip-word'})}/>
+          <SkipPowerup powerupcount={levelmanager.skips} onPress={() => useSkip()}/>
           <View style={styles.inputboard}>
             {Array(tile_count).fill(0).map((item, i) => {
               return (
@@ -79,8 +121,10 @@ const InputTiles = () => {
                 );
             })}
           </View>
-          <HintPowerup onPress={() => dispatch({type:'skip-word'})}/>
+          <HintPowerup powerupcount={levelmanager.hints} onPress={() => dispatch({type:'skip-word'})}/>
         </View>
+        {showSkipWordModal && <MiniModal/>}
+        </>
   );
 }
 

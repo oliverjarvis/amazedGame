@@ -45,11 +45,11 @@ export default memo(KeyboardInput);
 
   const styles = StyleSheet.create({
     highlighted:{
-      backgroundColor: '#E1566B',
+      backgroundColor: '#999',
     },
     keyboard:{
       flexDirection: 'column',
-      flexBasis: '23%',
+      height: '25%',
       paddingBottom: '5%',
       marginLeft: 10,
       marginRight: 10,
@@ -66,6 +66,8 @@ export default memo(KeyboardInput);
     },
     keycard:{
       borderRadius: 6,
+      borderColor: "#999",
+      borderWidth: 1,
       backgroundColor: '#293D46',
       width:'9.3%',
       height: '100%',
@@ -74,8 +76,11 @@ export default memo(KeyboardInput);
     },
     delcard:{
       borderRadius: 6,
+      borderColor: "#999",
+      borderWidth: 1,
       backgroundColor: '#293D46',
       width:'28.8%',
+      height: '100%',
       margin:'0.3%',
       justifyContent: 'center',
     },

@@ -10,7 +10,6 @@ import GameScreen from '../screens/GameScreen';
 import LinkingConfiguration from './LinkingConfiguration';
 import LevelSelector from '../screens/LevelSelector';
 import Credits from '../screens/Credits';
-import LevelScore from '../screens/LevelScore';
 import { StatusBar } from 'expo-status-bar';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -37,7 +36,6 @@ function RootNavigator() {
       <Stack.Screen name="LevelSelector" component={LevelSelector} options={{ headerShown: false }} />
       <Stack.Screen name="GameScreen" component={GameScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Credits" component={Credits} options={{ headerShown: false }} />
-      <Stack.Screen name="Level Score" component={LevelScore} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

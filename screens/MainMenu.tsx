@@ -1,65 +1,73 @@
-import { StyleSheet, Image, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback, Platform, Text, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Text, View } from '../components/Themed';
 import { useDispatch } from 'react-redux';
-import { reset } from "../redux/actions";
+import { decreaseMusicVol, increaseMusicVol, reset } from "../redux/actions";
+import {useEffect, useState, useContext} from "react";
+import { Audio } from 'expo-av';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, concat, withRepeat } from "react-native-reanimated";
+import { changeMusicVolAsync, SoundManagerContext } from '../soundmanager';
 
 import {
   AdMobRewarded,
-  setTestDeviceIDAsync,
 } from 'expo-ads-admob';
 
+import sounds from "../assets/audio/sounds";
 
-let logo = require('../assets/logo.png');
-
+let logo = require('../assets/images/logo.png');
+let buttonImage = require('../assets/images/button.png')
 const Button = ({text, onPress}) => {
   return (
-    <View style={buttonstyle.button}>
-      <TouchableOpacity onPress={onPress} style={buttonstyle.insetStyle}>
+    <View style={buttonstyle.buttoncontainer}>
+        <TouchableOpacity onPress={onPress}>
+        <Image source={buttonImage} style={buttonstyle.buttonimage}/>
         <View style={buttonstyle.outsetStyle}>
-          <Text style={{fontSize: 25,  fontWeight:'bold', textAlign: 'center', textAlignVertical:"center", color: '#444'}}>{ text }</Text>
+          <Text style={{fontSize: 25,  fontWeight:'bold', textAlign: 'center', textAlignVertical:"center", color: '#26303F'}}>{ text }</Text>
         </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
     </View>
     );
 }
 
-async function showInterstitialRewardedAd(){
-  await AdMobRewarded.setAdUnitID('ca-app-pub-3940256099942544/5224354917'); // Test ID, Replace with your-admob-unit-id
-  try{
-    await AdMobRewarded.requestAdAsync();
-  }catch(e){
-    console.log(e);
-  }
-  console.log("adsfasdf");
-  await AdMobRewarded.showAdAsync();
-}
 
-const MiniModal = () => {
-  return (
-    <View style={{position: 'absolute', height: '100%', width: '100%', backgroundColor: "rgba(0,0,0,0.2)", justifyContent: 'center', alignItems: 'center'}}>
-        <View style={{backgroundColor: '#fff', width: "80%", aspectRatio: 3/2, elevation: 5, borderRadius: 20, flexDirection: 'column', justifyContent: 'flex-end'}}>
-          <View style={{flexGrow: 1, backgroundColor: 'transparent', padding: "5%", justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: "#444", fontSize: 20}}>Oh no!</Text>
-            <Text style={{color: "#444", fontSize: 20}}>No more skips left!</Text>
-          </View>
-          <TouchableOpacity onPress={() => showInterstitialRewardedAd()} style={{ width: "100%", height: "30%", alignItems: 'center', backgroundColor: 'transparent', borderTopColor: "#999", borderTopWidth: 1, justifyContent: 'center'}}>
-            <Text style={{ color: '#444', fontSize: 20}}>Earn two skips</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-  );
-}
+export default function TabOneScreen({ navigation }) {  
 
-
-
-export default function TabOneScreen({ navigation }) {
   const dispatch = useDispatch();
+  let soundContext = useContext(SoundManagerContext);
 
   const clearAsyncStorage = async() => {
     dispatch(reset());
   }
- 
+
+  useEffect(() => {
+    const startPlayback = async () => {
+      await soundContext.unloadAsync();
+      await soundContext.playAsync();
+    }
+    console.log(soundContext);
+    if(soundContext != null){
+      startPlayback();
+    }
+
+  }, [soundContext]);
+  
+
+  // animation
+  const progress = useSharedValue(0);
+  const scale = useSharedValue(180);
+  const reanimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: progress.value,
+      transform: [{ rotateZ: `${scale.value}deg` }],
+    };
+  }, []);
+
+  useEffect(()=> {
+    console.log(progress.value);
+    progress.value = withTiming(1, {duration: 2000});
+    scale.value = withRepeat(withTiming(0, {duration: 2000}), 3, true)
+  }, [])
+
+
   AdMobRewarded.addEventListener("rewardedVideoUserDidEarnReward", (reward) => {
     console.log(reward);
   });
@@ -67,14 +75,13 @@ export default function TabOneScreen({ navigation }) {
   return (
     <>
     <View style={styles.container}>
-      <View style={styles.logoContainer}>
+      <Animated.View style={[styles.logoContainer, reanimatedStyle]}>
         <Image source={logo} style={styles.logo}/>
-      </View>
+      </Animated.View>
       <View style={styles.buttonbg}>
-        
         <Button text="Select a Level"  onPress={() => navigation.navigate('LevelSelector')} />
         <Button text="Credits" onPress={() => navigation.navigate('Credits')} />    
-        <Button text="clear storage" onPress={() => clearAsyncStorage()} />  
+        <Button text="clear storage" onPress={() => {clearAsyncStorage();  }} /> 
       </View>
     </View>
     </>
@@ -87,7 +94,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fdfdfd',
+    backgroundColor: '#26303F',
   },
   title: {
     fontSize: 70,
@@ -110,8 +117,9 @@ const styles = StyleSheet.create({
   },
   buttonbg:{
     marginTop: "10%",
-    flexBasis: "20%", 
+    flexBasis: "30%", 
     width: '100%', 
+    alignItems: 'center',
     backgroundColor: 'transparent'
 },
   logoContainer:{
@@ -125,15 +133,23 @@ const styles = StyleSheet.create({
     width: "100%", 
     aspectRatio: 802/263,
     flexShrink: 1,
+    zIndex: 9999
   },
 });
 
 let buttonstyle = StyleSheet.create({
-  button:{
-    width: "100%",
-    flex:1,
-    backgroundColor: 'transparent',
+  buttoncontainer:{
+    width: "80%",
+    aspectRatio: 562/105,
+    justifyContent: 'center',
     alignItems: 'center',
+    flexShrink: 1,
+    margin: "2%",
+  },
+  buttonimage:{
+    width: "100%", 
+    aspectRatio: 562/105,
+    flexShrink: 1,
   },
   insetStyle:{
     width: "80%",
@@ -143,10 +159,10 @@ let buttonstyle = StyleSheet.create({
     backgroundColor: '#A88600',
   },
   outsetStyle:{
+    position: 'absolute',
     width: "100%",
     height: '92%',
     borderRadius: 15,
-    backgroundColor: '#ffc000',
     justifyContent: 'center',
   },
 });

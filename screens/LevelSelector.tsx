@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, memo } from 'react';
 import { ActivityIndicator, TouchableOpacity, FlatList, StyleSheet, View, Dimensions, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -11,13 +11,15 @@ import { easylevels } from '../assets/levels/easy/levels_metadata';
 import { normallevels } from '../assets/levels/normal/levels_metadata';
 import { hardlevels } from '../assets/levels/hard/levels_metadata';
 
+import { Header } from "../Components/Header";
+
 import { 
   OpenLevelIcon, 
   PerfectLevelIcon, 
   CompletedLevelIcon, 
   LockedLevel, 
   DifficultyButton 
-} from '../components/LevelSelectorComponents';
+} from '../game/Components/LevelSelectorComponents';
 
 let levels_by_difficulty = {
   "easy" : easylevels,
@@ -37,14 +39,9 @@ export default function LevelSelector({ navigation }) {
   const [difficulty, setDifficulty] = useState<'easy' | 'normal' | 'hard' | null>(null);
   const [refreshFlatlist, setRefreshFlatlist] = useState(false);
   const [data, setData] = useState([]);
-
   useEffect(() => {
     setDifficulty('easy');
   }, [])
-
-  useEffect(() => {
-    console.log(levelmanager.activeLevel);
-  }, [levelmanager.activeLevel])
 
   useEffect(() => {
     setData(levelmanager.levels.filter(item => item.levelDifficulty == difficulty));
@@ -65,25 +62,26 @@ export default function LevelSelector({ navigation }) {
   };
  
   // Item element
-  const Item = ({ item }: {item: LevelMeta}) => {
+  const Item = memo(({ item }: {item: LevelMeta}) => {
+
+    let levels = difficulty == "easy" ? easylevels : difficulty == "normal" ? normallevels : hardlevels;
 
     return(
        <>
-       <ActivityIndicator/>
-        <View style={{backgroundColor: 'white', height: windowHeight / 3}}>
-          <TouchableOpacity activeOpacity={0.8} onPress={() => handleLevelpress(item)} style={{opacity: 1, backgroundColor:'transparent', flex: 1, flexDirection: "column", alignItems: 'center'}}>
+        <View style={{backgroundColor: '26303F', height: windowHeight / 3}}>
+          <TouchableOpacity activeOpacity={0.8} disabled={item.completionType == CompletionType.locked} onPress={() => handleLevelpress(item)} style={{opacity: 1, backgroundColor:'transparent', flex: 1, flexDirection: "column", alignItems: 'center'}}>
             <View style={{alignItems: 'center', justifyContent: 'flex-start', backgroundColor: 'transparent'}}>
               {item.completionType == CompletionType.perfected && <PerfectLevelIcon item={item}/>}
               {item.completionType == CompletionType.completed &&  <CompletedLevelIcon item={item}/>}
               {item.completionType == CompletionType.unlocked && <OpenLevelIcon item={item}/>}
               {item.completionType == CompletionType.locked && <LockedLevel item={item}/>}
-              <Text style={{color: 'black', fontWeight: 'bold', marginTop: 10, fontSize: 20}}>‘hello’</Text>
+              <Text style={{color: '#eee', fontWeight: 'bold', marginTop: 10, fontSize: 20}}>'{levels[item.levelID].title}'</Text>
           </View>
         </TouchableOpacity>
         </View>
       </>
     );
-  };
+  });
   
   // RenderItem element
   const renderItem = ({ item }) => {
@@ -107,7 +105,8 @@ export default function LevelSelector({ navigation }) {
   // Render
   return (
     <View style={styles.container}>
-      <View style={{flex: 1, backgroundColor: "#fff"}}>
+      <Header />
+      <View style={{flex: 1, backgroundColor: "#26303F"}}>
          {data.length > 0 && <FlatList 
           initialScrollIndex={0} 
           onScrollToIndexFailed={info => {
@@ -133,7 +132,7 @@ export default function LevelSelector({ navigation }) {
         pointerEvents = "none"
         colors={['transparent','transparent',  'transparent',  'transparent', 'transparent',  'transparent', 'rgba(0,0,0,0.6)']}
         style={{...styles.background}}/>
-      <View style={ { backgroundColor: 'white', height: windowHeight / 10, width: "100%", flexDirection: "row", alignItems: 'center', justifyContent: 'space-evenly' } }>
+      <View style={ { backgroundColor: '#2B4753', height: windowHeight / 10, width: "100%", flexDirection: "row", alignItems: 'center', justifyContent: 'space-evenly' } }>
         <DifficultyButton onPress={() => {setDifficulty("easy"); handleItemPress(0);}} selected={difficulty == "easy"} text="Easy"/>
         <DifficultyButton onPress={() => setDifficulty("normal")} selected={difficulty == "normal"} text="Normal"/>
         <DifficultyButton onPress={() => setDifficulty("hard")} selected={difficulty == "hard"} text="Hard"/>
@@ -145,7 +144,7 @@ export default function LevelSelector({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    backgroundColor: '#fff',
+    backgroundColor: '#26303F',
     height:"100%",
     justifyContent: 'space-between',
   },

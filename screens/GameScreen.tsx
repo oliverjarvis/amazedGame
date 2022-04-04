@@ -1,10 +1,8 @@
 import * as SplashScreen from 'expo-splash-screen';
-import { StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState, useReducer, useContext } from 'react';
-import { Text, View } from '../components/Themed';
 import Game from '../game/Game';
-import LevelScore from './LevelScore';
 import { LinearGradient } from 'expo-linear-gradient';
 import LevelProvider from '../game/Providers/LevelProvider';
 
@@ -17,7 +15,7 @@ export default function GameScreen({ route, navigation }) {
         // Background Linear Gradient
         start ={{x: 0, y: 0}}
         end = {{x:1, y:1}}
-        colors={['#EFBCED', '#B4EBEE', '#BED5F6']}
+        colors={['#26303F', '#26303F', '#26303F']}
         style={{...styles.background}}>
           <LevelProvider levelID={levelID} levelDifficulty={levelDifficulty}>
             <Game navigation={navigation} />

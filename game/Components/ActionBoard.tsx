@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { memo, useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 import { gameManagerContext } from '../GameLogic';
@@ -12,7 +12,7 @@ const ActionBoard = () => {
 
     return (
       <View style={styles.actionboard}>
-        <Text adjustsFontSizeToFit={true} numberOfLines={2} style={{color:"#444", fontSize:70, fontWeight:'bold', textAlign:'left'}}>{state.hasWon? "YOU WIN!":dictionaryDef}</Text>
+        <Text adjustsFontSizeToFit={true} numberOfLines={2} style={{color:"#eee", fontSize:70, fontWeight:'bold', textAlign:'left'}}>{state.hasWon? "YOU WIN!":dictionaryDef}</Text>
       </View>
     );
   }
@@ -35,11 +35,12 @@ interface dictionaryData{
 const styles= StyleSheet.create({
     actionboard:{
         flexDirection: 'column',
+        backgroundColor: 'transparent',
         borderRadius: 0,
-        flexBasis: '6%',
         width: '90%',
-        flex: 1,
-        marginVertical:"1.25%",
+        height: '10%',
+        //flex: 1,
+        //marginVertical:"1.25%",
         padding: 0, 
         alignItems: 'center',
         justifyContent: 'center',
@@ -47,4 +48,4 @@ const styles= StyleSheet.create({
     }
 });
 
-export default ActionBoard;
+export default memo(ActionBoard);

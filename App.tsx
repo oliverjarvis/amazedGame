@@ -5,7 +5,7 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
-import { createStore } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
 import { Provider } from 'react-redux';
 import allReducer from "./redux/reducers/";
 import { persistStore, persistReducer } from 'redux-persist'
@@ -13,6 +13,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PersistGate } from 'redux-persist/integration/react'
 import { useCallback, useEffect, useState } from 'react';
 import { enableScreens } from 'react-native-screens';
+
+import thunk from 'redux-thunk'
+import SoundManagerProvider from './soundmanager';
 
 enableScreens();
 
@@ -23,7 +26,7 @@ const persistConfig = {
 
 const persistedReducer = persistReducer(persistConfig, allReducer)
 
-const store = createStore(persistedReducer);
+const store = createStore(persistedReducer, applyMiddleware(thunk));
 const persistor = persistStore(store)
 
 export default function App() { 
@@ -32,6 +35,7 @@ export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
+  
   useEffect(() => {
     async function prepare() {
       try {
@@ -57,7 +61,9 @@ export default function App() {
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>
-        <Navigation colorScheme={colorScheme}/>
+        <SoundManagerProvider>
+          <Navigation colorScheme={colorScheme}/>
+        </SoundManagerProvider>
       </PersistGate>
     </Provider>
   );

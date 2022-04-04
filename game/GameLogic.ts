@@ -32,6 +32,8 @@ type GameState = {
     gameOver: boolean,
     prevWord: string,
     completed_words: string[],
+    completedWordCount: number,
+    showScoreModal: boolean,
   };
 
 export const initialState: GameState = {
@@ -46,6 +48,8 @@ export const initialState: GameState = {
     prevWord: "",
     guesses: 0,
     completed_words: [],
+    completedWordCount: 0,
+    showScoreModal: false
 };
 
 type Action = 
@@ -54,8 +58,11 @@ type Action =
     |   { type: 'select-tile'; payload: number }
     |   { type: 'validate-answer'; payload: {tileIndex: number, guess:string} }
     |   { type: 'load_level'; payload: {data: LevelData, level: number, levelDifficulty: string} }
+    |   { type: 'reload_level'; }
     |   { type: 'game-over'; }
-    |   { type: 'skip-word'; };
+    |   { type: 'skip-word'; }
+    | { type: 'show-score-modal'; }
+    |   { type: 'clear-text'; };
 
 const openAdjacentTiles = (tiles: TileState[], index: number): TileState[] =>{
     tiles[index].adjacent_to.forEach((item, i) => {
@@ -69,7 +76,11 @@ const openAdjacentTiles = (tiles: TileState[], index: number): TileState[] =>{
     
 export const gameReducer = (state: GameState, action: Action): GameState =>{
     let gameTiles: TileState[] = state.tiles;
-
+    let adjacent_to: number[] = [];
+    let currentWord = state.currentWord;
+    if(gameTiles.length > 0){
+        currentWord = state.currentWord.length > 0 ? state.currentWord : gameTiles[0].word;
+    }
     switch (action.type) {
         case 'select-tile':
             gameTiles = state.tiles;
@@ -81,7 +92,7 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
                     }
                 }
                 });
-            return {...state, selectedTileIndex: action.payload, tiles: gameTiles, currentWord: state.tiles[action.payload].word};
+            return {...state, selectedTileIndex: action.payload, tiles: gameTiles, prevWord: currentWord, currentWord: state.tiles[action.payload].word};
         case 'validate-answer':
             gameTiles = state.tiles;
             if(state.currentWord.toLowerCase() === action.payload.guess.toLowerCase()){
@@ -91,14 +102,12 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
                 gameTiles = openAdjacentTiles(gameTiles, state.selectedTileIndex);
                 let hasWon = state.selectedTileIndex == 15;
                 let gameOver = hasWon;
-                return {...state, gameOver: gameOver, tiles: gameTiles, hasWon: hasWon, guesses: state.guesses + 1, prevWord: state.currentWord, selectedTileIndex: -1, completed_words: [...state.completed_words, state.currentWord]};
+                return {...state, gameOver: gameOver, tiles: gameTiles, hasWon: hasWon, showScoreModal: hasWon, guesses: state.guesses, selectedTileIndex: -1,  completed_words: [...state.completed_words, state.currentWord], completedWordCount: state.completedWordCount + 1};
             }
-            
             return {...state, tiles: gameTiles, guesses: state.guesses + 1};
 
         case 'load_level':
             let tiles: TileState[] = [];
-            let adjacent_to: number[] = [];
             action.payload.data.maze.forEach((item, index) => {
                 let arrows = [];
                 let tilemode: TileMode = index == 0 ? 'completed' : 'blank';
@@ -114,8 +123,29 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
                 }
             });
             return { ...state, tiles: tiles, level: action.payload.level, levelDifficulty: action.payload.levelDifficulty };
+
+        case 'reload_level':
+            console.log("reloading");
+            gameTiles.forEach((item, index) => {
+                if(index==0) {
+                    gameTiles[index].tileMode = "completed";
+                    adjacent_to = item.adjacent_to;
+                }else{
+                    gameTiles[index].tileMode = "blank";
+                }
+            })
+            console.log(gameTiles);
+            /*gameTiles.forEach((tile, index) => {
+
+                if(adjacent_to.includes(tile.tileIndex) && (tile.tileMode == 'blank' || tile.tileMode == 'completed')){
+                    gameTiles[index].tileMode = 'open';
+                }
+            });*/
+            return {...state, tiles: gameTiles, gameOver:false, hasWon: false, completed_words: []};
         case 'game-over':
             return {...state, gameOver: true};
+        case 'show-score-modal':
+            return {...state, showScoreModal: true};
         case 'skip-word':
             gameTiles = state.tiles;
             if(state.selectedTileIndex > 0){
@@ -124,7 +154,6 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
             }
             let hasWon = state.selectedTileIndex == 15;
             let gameOver = hasWon;
-            console.log("skipped");
             return {...state, tiles: gameTiles, hasWon: hasWon, gameOver: gameOver};
         default:
             return initialState;

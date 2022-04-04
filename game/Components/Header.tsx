@@ -1,34 +1,26 @@
-import { useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { gameManagerContext } from "../GameLogic";
 import { ProgressBar } from "./ProgressBar";
 
 
-const DiamondCount = ({diamongCount}) => {
-    
-    return (
-      <View style={{flexBasis:"20%", flexShrink: 1, height:"100%",  alignItems:'center', justifyContent:'center'}}>
-        <View style={{backgroundColor: 'transparent', borderRadius:999, marginHorizontal: 5, padding: 5}}>
-          
-        </View>
-      </View>
-    )
-  };
-  
-  const SettingsIcon = () => {
-    return (
-      <View style={{flexBasis:"20%", flexShrink: 1, backgroundColor:'transparent'}}>
-          <Text style={{fontSize: 20, textAlign: 'center', textAlignVertical:"center", color: 'black'}}>⚙️</Text>
-      </View>
-    )
-  };
 
-export const Header = ({level_id}:{level_id? : number}) => {
-    const levelCompletionTime = 200.0;
+
+const SettingsIcon = memo(() => {
+  return (
+    <View style={{flexBasis:"20%", flexShrink: 1, backgroundColor:'transparent'}}>
+        <Text style={{fontSize: 20, textAlign: 'center', textAlignVertical:"center", color: 'black'}}>⚙️</Text>
+    </View>
+  )
+});
+
+export const Header = memo(({level_id}:{level_id? : number}) => {
+    const levelCompletionTime = 160.0;
     const {state, dispatch} = useContext(gameManagerContext);
 
     const [time, setTime] = useState(levelCompletionTime);
+    const [deltaTime, setDeltaTime] = useState(0);
     const insets = useSafeAreaInsets();
 
     useEffect(() => {
@@ -42,34 +34,35 @@ export const Header = ({level_id}:{level_id? : number}) => {
         return () => clearInterval(interval);
       }
       }, [time]);
+    
+    useEffect(() => {
+      if(!state.gameOver){
+        setTime(levelCompletionTime);
+      }
+    }, [state.gameOver])
 
       
     return (
         <View style={{...styles.header, paddingTop:insets.top, paddingBottom: 10}}>
-            <DiamondCount diamongCount={0}/>
+          <View style={{width: "20%"}}></View>
             <View style={{flexDirection:"column", flexBasis: "60%",  alignItems:"center"}}>
-            <Text style={{color: 'white', fontSize:20, fontWeight: 'bold', paddingBottom: 5, textAlign:"center"}}>Level {level_id}</Text>
-            <ProgressBar height={25} width={200} progress={time/levelCompletionTime} />
+            <Text style={{color: 'white', fontSize:25, fontWeight: 'bold', paddingBottom: 10, paddingTop: 10, textAlign:"center"}}>Level {level_id + 1}</Text>
+            <ProgressBar height={20} width={250} />
             </View>
             <SettingsIcon/>
         </View>
     );
-}
+});
 
 let styles = StyleSheet.create({
     header: {
-      flexBasis: '9.5%',
-      flexGrow: 1,
+      height: '10%',
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#293D46',
+      backgroundColor: 'transparent',
       padding: 10,
       borderTopLeftRadius: 0,
       borderTopRightRadius: 0,
-      marginTop: 0,
-      marginBottom: 0,
-      marginLeft: 0,
-      marginRight: 0,
     }
   });

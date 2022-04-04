@@ -2,8 +2,6 @@ import { easylevels } from "../../assets/levels/easy/levels_metadata";
 import { normallevels } from "../../assets/levels/normal/levels_metadata";
 import { hardlevels } from "../../assets/levels/hard/levels_metadata";
 
-import { LevelMetadata } from "../../assets/levels/interfaces";
-
 enum CompletionType{
     locked = "l",
     unlocked = "u",
@@ -52,6 +50,15 @@ const levelmanagerReducer = (state = initialGameState, action) => {
                 if(item.levelID == state.activeLevel.levelID && item.levelDifficulty == state.activeLevel.levelDifficulty){
                     activeLevel.completionType = action.payload.completionType;
                 }
+                if(action.payload.completionType == CompletionType.completed){
+                    console.log(item.levelID);
+                    console.log(state.activeLevel.levelID + 1);
+                }
+                if(item.levelID == state.activeLevel.levelID + 1 && (action.payload.completionType == CompletionType.completed || action.payload.completionType == CompletionType.perfected)){
+                    if(item.levelDifficulty == state.activeLevel.levelDifficulty){
+                        levels[index].completionType =  levels[index].completionType == CompletionType.locked? CompletionType.unlocked: levels[index].completionType;
+                    }
+                }
             });
             return {...state, levels, activeLevel: activeLevel};
         case 'SET-ACTIVE-LEVEL':
@@ -60,17 +67,13 @@ const levelmanagerReducer = (state = initialGameState, action) => {
                     if(item.levelID == action.payload.levelID){
                         activeLevel = item;
                     }
-                    if(item.levelID == action.payload.levelID + 1){
-                        levels[index].completionType = CompletionType.unlocked;
-                    }
                 }
-                
             });
             return {...state, activeLevel};
         case 'INCREMENT-SKIPS':
-            console.log(action.payload);
             return {...state, skips: (state.skips + action.payload as number)};
         case 'SPEND-SKIP':
+            console.log("hello");
             return {...state, skips: (state.skips - 1 as number)};
         case 'INCREMENT-HINT':
             return {...state, hints: (state.hints + action.payload as number)};

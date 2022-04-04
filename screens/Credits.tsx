@@ -1,8 +1,6 @@
-import { StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, View, Text } from 'react-native';
 
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
-let logo = require('../assets/logo.png');
+let logo = require('../assets/images/logo.png');
 
 //import logo from '../assets/logo.png';
 

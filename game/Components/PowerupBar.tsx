@@ -1,22 +1,28 @@
+import { memo } from "react";
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native"
 
-const Button = ({icon, text, onPress, powerupcount}) => {
+const typedMemo: <T>(c: T) => T = memo;
+
+
+const Button = ( { text, powerupcount, onPress }) => {
     return (
       <TouchableOpacity onPress={onPress} style={styles.insetStyle}>
         <View style={styles.outsetStyle}>
-          <Text style={{fontSize: 14,  fontWeight:'bold', textAlign: 'center', padding:2, textAlignVertical:"center", color: '#444'}}>{ text }</Text>
-          <Text style={{fontSize: 14,  fontWeight:'bold', textAlign: 'center', padding:2, textAlignVertical:"center", color: '#444'}}>{ powerupcount }</Text>
+          <Text style={{fontSize: 14,  fontWeight:'bold', textAlign: 'center', padding:0, textAlignVertical:"center", color: '#fff'}}>{ powerupcount }</Text>
+          <Text style={{fontSize: 14,  fontWeight:'bold', textAlign: 'center', padding:2, textAlignVertical:"center", color: '#fff'}}>{ text }</Text>
         </View>
       </TouchableOpacity>
       );
-}
+};
+
+const MemoButton = typedMemo(Button);
 
 export const HintPowerup = ({onPress, powerupcount}) => {
-  return <Button powerupcount={powerupcount} onPress={onPress} icon="💡" text="Hint"/>; 
-}
+  return <MemoButton powerupcount={powerupcount} onPress={onPress} text="Hint"/>; 
+};
 
 export const SkipPowerup = ({onPress, powerupcount}) => {
-  return <Button powerupcount={powerupcount} onPress={onPress} icon="💣" text="Skip"/>; 
+  return <MemoButton powerupcount={powerupcount} onPress={onPress} text="Skip"/>; 
 }
 
 let styles = StyleSheet.create({
@@ -26,14 +32,16 @@ let styles = StyleSheet.create({
     alignContent: "center",
     borderRadius: 5,
     justifyContent: 'flex-start',
-    backgroundColor: '#A88600',
+    backgroundColor: 'transparent',
   },
   outsetStyle:{
     width: "100%",
-    height: '92%',
+    height: '100%',
+    borderColor: "#aaa",
+    borderWidth: 2,
     padding: "2.5%",
-    borderRadius: 5,
+    borderRadius: 999,
     justifyContent: 'center',
-    backgroundColor: '#FFCC00',
+    backgroundColor: '#444',
   },
 });

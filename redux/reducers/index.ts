@@ -1,8 +1,10 @@
 import levelmanagerReducer from './levelmanager';
+import soundmanagerReducer from './soundmanager';
 import { combineReducers } from 'redux';
 
 const allreducer = combineReducers({
-    levelmanager: levelmanagerReducer
+    levelmanager: levelmanagerReducer,
+    soundmanager: soundmanagerReducer,
 })
 
 export default allreducer;

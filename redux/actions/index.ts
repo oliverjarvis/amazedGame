@@ -1,3 +1,5 @@
+import { Audio } from 'expo-av';
+
 enum CompletionType{
     locked = "l",
     unlocked = "u",
@@ -6,6 +8,17 @@ enum CompletionType{
 };
 
 
+export const increaseMusicVol = () => {
+    return {
+        type: 'increase-music'
+    }
+}
+
+export const decreaseMusicVol = () => {
+    return {
+        type: 'decrease-music'
+    }
+}
 
 export const setLevelProgress = (completionType) => {
     return {

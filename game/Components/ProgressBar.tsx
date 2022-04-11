@@ -1,23 +1,31 @@
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming, AnimationCallback } from "react-native-reanimated";
+import { withPause } from "react-native-redash";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming, AnimationCallback, runOnJS } from "react-native-reanimated";
 
 
-export const ProgressBar = ({ width, height }) => {
+export const ProgressBar = ({ duration, width, height, isPaused, callback }: {duration: number, width: string, height: number, isPaused: boolean, callback: any}) => {
 
-    const progress = useSharedValue(250);
+    const progress = useSharedValue(100);
+
+    const paused = useSharedValue(false);
+
+    useEffect(()=>{
+        paused.value = isPaused;
+    }, [isPaused]);
 
     const reanimatedStyle = useAnimatedStyle(() => {
         return {
-          width: progress.value,
+          width: `${progress.value}%`,
         };
       }, []);
       
     useEffect(()=> {
-    console.log(progress.value);
-    progress.value = withTiming(0, {duration: 20000}, (isFinished) => {
+    progress.value = withPause(withTiming(0, {duration: duration}, (isFinished) => {
+        runOnJS(callback)();
+    }), paused);
 
-    });
+    return () => { progress.value = 0 };
     }, [])
     
     return (

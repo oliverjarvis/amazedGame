@@ -1,12 +1,12 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import {Text, View, TouchableOpacity, StyleSheet, Image, TouchableWithoutFeedback} from 'react-native';
 import {gameManagerContext, initialState, TileState} from '../../GameLogic';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming, AnimationCallback, withRepeat, withSpring, Keyframe, withDelay, Easing, runOnJS } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming, AnimationCallback, withRepeat, withSpring, Keyframe, withDelay, Easing, runOnJS, withSequence, runOnUI } from "react-native-reanimated";
 import styles from "./Tile.style";
-
 let Goal = require('../../../assets/images/goal.png');
 let goldTile = require('../../../assets/images/goldtile.png');
 let greenTile = require('../../../assets/images/greentile.png');
+let selectedTile = require('../../../assets/images/selectedTile.png');
 
 function Tile({tile}: {tile: TileState}) {
 
@@ -18,6 +18,9 @@ function Tile({tile}: {tile: TileState}) {
   const tileFlip = useSharedValue(0);
   const greenTileOpacity = useSharedValue(1)
   const goldTileOpacity = useSharedValue(0);
+
+  const [notAnimating, setNotAnimating] = useState(false);
+
 
   const flipTileStyle = useAnimatedStyle(() => {
       return {
@@ -45,22 +48,24 @@ function Tile({tile}: {tile: TileState}) {
   useEffect(() => {
     
     if(state.tiles[tile.tileIndex].tileMode == "completed"){
-      console.log("grunk")
-      tileFlip.value = withTiming(180, {duration: 300});
+      tileFlip.value = withSequence(withTiming(-180, {duration: 0}), withTiming(-360, {duration: 300}, (isFinished)=>{
+        if(tile.tileIndex == 15){
+          runOnJS(dispatch)({type: 'show-win'});
+        }
+      }));
       greenTileOpacity.value = withDelay(150, withTiming(0, {duration: 0}));
       goldTileOpacity.value = withDelay(150, withTiming(1, {duration: 0}));
+
     }
   }, [state.tiles[tile.tileIndex].tileMode])
 
   useEffect(()=> {
       if(selectTile){
-        console.log("selected");
         progress.value = withRepeat(withTiming(0.8, {duration: 50}), 2, true);
         setSelectTile(false);
       }
     
   }, [selectTile])
-
 
   let tileOutsetStyle = styles.outset;
   let tileHidden = {}
@@ -76,7 +81,6 @@ function Tile({tile}: {tile: TileState}) {
   const [fallRest, setFallRest] = useState(false);
 
   function showModal(){
-      console.log(":)");
       setTimeout(()=>{
         dispatch({type: "show-score-modal"});
       }, 1000)
@@ -95,18 +99,21 @@ function Tile({tile}: {tile: TileState}) {
         runOnJS(showModal)();
       }));
     }
-  }, [state.gameOver])
+  }, [state.showWin])
+
   //tile lose fall
   const fallAmount = useSharedValue(0);
   const fallAmountStyle = useAnimatedStyle(() => {
     return {
-      transform: [{rotateZ:  `${fallAmount.value}deg`}]
+      transform: [{translateY:  fallAmount.value}]
     };
   }, []);
 
   useEffect(() => {
     if(state.gameOver && !state.hasWon){
-      fallAmount.value = withDelay(1000 + 25 * tile.tileIndex, withTiming(1000, {duration: 400}));
+      fallAmount.value = withDelay(1000 + 25 * tile.tileIndex, withTiming(1000, {duration: 600}, (isFinished) => {
+        runOnJS(showModal)();
+      }));
     }
   }, [state.gameOver])
 
@@ -114,18 +121,27 @@ function Tile({tile}: {tile: TileState}) {
       <Animated.View style={tile.tileIndex == 0 ?[outerStyle, tileWinBounceStyle, fallAmountStyle] : [outerStyle, flipTileStyle, tileWinBounceStyle, fallAmountStyle]}>
         <TouchableWithoutFeedback
           disabled={tile.tileMode == 'completed' || tile.tileMode == 'blank' || tile.selected}
-          onPress={() => { dispatch( {type: 'select-tile', payload: tile.tileIndex}); setSelectTile(true);}}
-        >
+          onPress={
+            () => { 
+              if(!state.gameOver) 
+              {
+                dispatch({type: 'select-tile', payload: tile.tileIndex});
+                 setSelectTile(true);
+              }
+            }
+          }
+          >
           <View>
-            <Animated.View style={tile.tileIndex == 0 ? [tileOutsetStyle, goldTileStyle] : [tileOutsetStyle, {transform:[{rotateY: '-180deg'}]}, goldTileStyle]}>
+            <Animated.View style={tile.tileIndex == 0 ? [tileOutsetStyle, goldTileStyle] : [tileOutsetStyle, {transform:[{rotateY: '0deg'}]}, goldTileStyle]}>
                 <Image source={goldTile} style={styles.tileImage} />
-              <View style={{position: 'absolute', height: "80%", width: "80%", justifyContent: 'center', alignItems: 'center'}}>
+              <View style={{position: 'absolute', zIndex: 99, height: "100%", width: "100%", justifyContent: 'center', alignItems: 'center'}}>
                   <Text style={styles.buttonText}>{tile.word.toLowerCase()}</Text>
               </View>
             </Animated.View>
             <Animated.View style={[{...tileOutsetStyle, position: 'absolute'}, greenTileStyle]}>
-              <Image source={greenTile} style={[styles.tileImage, tileHidden]} />
-              { tile.tileMode != "completed" && tile.tileIndex == 15? <View style={{position: 'absolute', height: "80%", width: "80%", justifyContent: 'center', alignItems: 'center'}}><Image source={Goal} style={styles.endGoal} /></View>: null }
+              {tile.tileIndex != state.selectedTileIndex && <Image source={greenTile} style={[styles.tileImage, tileHidden]} />}
+              {tile.tileIndex == state.selectedTileIndex && <Image source={selectedTile} style={[styles.tileImage, tileHidden]} />}
+              { tile.tileMode != "completed" && tile.tileIndex == 15? <View style={{position: 'absolute', zIndex: 99, height: "80%", width: "80%", justifyContent: 'center', alignItems: 'center'}}><Image source={Goal} style={styles.endGoal} /></View>: null }
             </Animated.View>
          </View>
         </TouchableWithoutFeedback>
@@ -134,49 +150,3 @@ function Tile({tile}: {tile: TileState}) {
 }
 
 export default memo(Tile);
-
-             {/*  <View style={tileOutsetStyle}>
-              { tile.tileMode == "completed" && <Image source={goldTile} style={styles.tileImage} /> }
-              <Image source={goldTile} style={styles.tileImage} />
-              <Image source={greenTile} style={styles.tileImage} />
-              {tile.tileMode == "open" && <Image source={greenTile} style={styles.tileImage} /> }
-              { tile.tileMode != "completed" && tile.tileIndex == 15? <View style={{position: 'absolute', height: "80%", width: "80%", justifyContent: 'center', alignItems: 'center'}}><Image source={Goal} style={styles.endGoal} /></View>: null }
-              {tile.tileMode == "completed" && 
-                 <View style={{position: 'absolute', height: "80%", width: "80%", justifyContent: 'center', alignItems: 'center'}}>
-                   <Text style={styles.buttonText}>{tile.word.toLowerCase()}</Text>
-                  </View>
-              }
-            
-            </View> */ }
-/*
-let currentTileCoords = index_to_xy(tile.tileIndex);
-let leftborder = true;
-let rightborder = true;
-let topborder = true;
-let bottomborder = true;
-
-if(tile.tileMode == 'completed'){
-  tile.adjacent_to.forEach((item) => {
-    let adjacent_xy = index_to_xy(item);
-    if(adjacent_xy.y < currentTileCoords.y){ topborder = false; }
-    else if(adjacent_xy.y > currentTileCoords.y){ bottomborder = false; }
-    else if(adjacent_xy.x > currentTileCoords.x){ rightborder = false;  }
-    else if(adjacent_xy.x < currentTileCoords.x){ leftborder = false;  }
-  });*/
-  /*switch(tile.tileMode){
-    case "completed":
-      tileInsetStyle = {...tileInsetStyle, ...styles.insetCompleted};
-      break;
-    case "open":
-      if(tile.selected){
-        tileInsetStyle = {...tileInsetStyle, ...styles.insetSelected};
-        tileOutsetStyle = {...tileOutsetStyle, ...styles.outsetSelected};
-      }else{
-        tileInsetStyle = {...tileInsetStyle, ...styles.insetOpen};
-        tileOutsetStyle = {...tileOutsetStyle, ...styles.outsetOpen};
-      }
-      break;
-    case "blank":
-      tileInsetStyle = {...tileInsetStyle, ...styles.insetBlank};
-      tileOutsetStyle = {...tileOutsetStyle, ...styles.outsetBlank};
-  }*/

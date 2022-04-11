@@ -3,12 +3,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 import { gameManagerContext } from '../GameLogic';
 
-const dictionary: dictionaryData = require('../../assets/dictionary/four-word-defs.json');
+const dictionary: dictionaryData = require('../../assets/DICTIONARY.json');
 
 const ActionBoard = () => {
-    const {state, dispatch} = useContext(gameManagerContext);
+    const { state } = useContext(gameManagerContext);
     
-    const dictionaryDef = Object.keys(dictionary).includes(state.currentWord) ? dictionary[state.currentWord].meanings[0].def : "";
+    const dictionaryDef = Object.keys(dictionary).includes(state.currentWord) ? dictionary[state.currentWord][state.levelDifficulty] : "";
 
     return (
       <View style={styles.actionboard}>
@@ -39,8 +39,6 @@ const styles= StyleSheet.create({
         borderRadius: 0,
         width: '90%',
         height: '10%',
-        //flex: 1,
-        //marginVertical:"1.25%",
         padding: 0, 
         alignItems: 'center',
         justifyContent: 'center',

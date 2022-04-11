@@ -1,19 +1,21 @@
 import { StyleSheet, Image, TouchableOpacity, TouchableWithoutFeedback, Platform, Text, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useDispatch } from 'react-redux';
-import { decreaseMusicVol, increaseMusicVol, reset } from "../redux/actions";
-import {useEffect, useState, useContext} from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { decreaseMusicVol, increaseMusicVol, reset, updateHandoutDate } from "../redux/actions";
+import {useEffect, useState, useContext, useLayoutEffect} from "react";
 import { Audio } from 'expo-av';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, concat, withRepeat } from "react-native-reanimated";
-import { changeMusicVolAsync, SoundManagerContext } from '../soundmanager';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, concat, withRepeat, withSequence } from "react-native-reanimated";
+import { changeMusicVolAsync, SoundManagerContext, playButtonClick } from '../soundmanager';
 
 import {
   AdMobRewarded,
 } from 'expo-ads-admob';
 
 import sounds from "../assets/audio/sounds";
+import { RootState } from '../redux/reducers';
+import PrizeModal from '../game/Components/Modals/PrizeModal';
 
-let logo = require('../assets/images/logo.png');
+let logo = require('../assets/images/logo2.png');
 let buttonImage = require('../assets/images/button.png')
 const Button = ({text, onPress}) => {
   return (
@@ -28,6 +30,14 @@ const Button = ({text, onPress}) => {
     );
 }
 
+const buttonClickSFX = new Audio.Sound();
+
+
+const onPlayPress = async () => {
+  await buttonClickSFX.replayAsync();
+}
+
+
 
 export default function TabOneScreen({ navigation }) {  
 
@@ -38,12 +48,22 @@ export default function TabOneScreen({ navigation }) {
     dispatch(reset());
   }
 
+  async function setupSFX(){
+    await buttonClickSFX.loadAsync(
+      require("../assets/audio/buttonclick.mp3")
+    );
+  }
+
+  useLayoutEffect(() => {
+    console.log("play");
+    setupSFX();
+  }, []);
+
   useEffect(() => {
     const startPlayback = async () => {
       await soundContext.unloadAsync();
       await soundContext.playAsync();
     }
-    console.log(soundContext);
     if(soundContext != null){
       startPlayback();
     }
@@ -52,24 +72,24 @@ export default function TabOneScreen({ navigation }) {
   
 
   // animation
-  const progress = useSharedValue(0);
-  const scale = useSharedValue(180);
+  const angle = useSharedValue(0);
   const reanimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: progress.value,
-      transform: [{ rotateZ: `${scale.value}deg` }],
+      transform: [{ rotateZ: `${angle.value}deg` }],
     };
   }, []);
 
   useEffect(()=> {
-    console.log(progress.value);
-    progress.value = withTiming(1, {duration: 2000});
-    scale.value = withRepeat(withTiming(0, {duration: 2000}), 3, true)
+    angle.value = 
+      withSequence(
+        withTiming(-1, {duration: 144}),
+        withRepeat(withTiming(1, {duration: 288}), -1, true)
+      );
   }, [])
 
 
   AdMobRewarded.addEventListener("rewardedVideoUserDidEarnReward", (reward) => {
-    console.log(reward);
+    //console.log(reward);
   });
 
   return (
@@ -79,10 +99,12 @@ export default function TabOneScreen({ navigation }) {
         <Image source={logo} style={styles.logo}/>
       </Animated.View>
       <View style={styles.buttonbg}>
-        <Button text="Select a Level"  onPress={() => navigation.navigate('LevelSelector')} />
-        <Button text="Credits" onPress={() => navigation.navigate('Credits')} />    
-        <Button text="clear storage" onPress={() => {clearAsyncStorage();  }} /> 
+        <Button text="Select a Level"  onPress={() => {playButtonClick(); navigation.navigate('LevelSelector')}} />
+        <Button text="How to play" onPress={() => {playButtonClick(); navigation.navigate('How To Play');  }} /> 
+        <Button text="Remove Ads" onPress={() => {playButtonClick();   }} /> 
+        <Button text="clear storage" onPress={() => {playButtonClick(); clearAsyncStorage();  }} /> 
       </View>
+      <Text style={{color: 'white', fontWeight: 'bold'}}>Gibberish Games ©</Text>
     </View>
     </>
   );
@@ -124,14 +146,14 @@ const styles = StyleSheet.create({
 },
   logoContainer:{
     width:"80%", 
-    aspectRatio: 802/263,
+    aspectRatio: 401/125,
     alignItems:'center', 
     flexShrink: 1,
     backgroundColor: 'transparent',
   },
   logo: {
     width: "100%", 
-    aspectRatio: 802/263,
+    aspectRatio: 401/125,
     flexShrink: 1,
     zIndex: 9999
   },

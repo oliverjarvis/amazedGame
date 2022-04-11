@@ -1,4 +1,5 @@
 import { createContext } from 'react';
+import { playFailClick, playSucessClick } from "../soundmanager";
 
 interface LevelData
 {
@@ -32,6 +33,8 @@ type GameState = {
     gameOver: boolean,
     prevWord: string,
     completed_words: string[],
+    showWin: boolean,
+    isPaused: boolean,
     completedWordCount: number,
     showScoreModal: boolean,
   };
@@ -49,6 +52,8 @@ export const initialState: GameState = {
     guesses: 0,
     completed_words: [],
     completedWordCount: 0,
+    isPaused: false,
+    showWin: false,
     showScoreModal: false
 };
 
@@ -62,6 +67,8 @@ type Action =
     |   { type: 'game-over'; }
     |   { type: 'skip-word'; }
     | { type: 'show-score-modal'; }
+    |   { type: "pause-unpause"; }
+    | { type: 'show-win'; }
     |   { type: 'clear-text'; };
 
 const openAdjacentTiles = (tiles: TileState[], index: number): TileState[] =>{
@@ -102,8 +109,12 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
                 gameTiles = openAdjacentTiles(gameTiles, state.selectedTileIndex);
                 let hasWon = state.selectedTileIndex == 15;
                 let gameOver = hasWon;
+                console.log("hasWon");
+                console.log(hasWon);
+                playSucessClick();
                 return {...state, gameOver: gameOver, tiles: gameTiles, hasWon: hasWon, showScoreModal: hasWon, guesses: state.guesses, selectedTileIndex: -1,  completed_words: [...state.completed_words, state.currentWord], completedWordCount: state.completedWordCount + 1};
             }
+            playFailClick();
             return {...state, tiles: gameTiles, guesses: state.guesses + 1};
 
         case 'load_level':
@@ -123,68 +134,28 @@ export const gameReducer = (state: GameState, action: Action): GameState =>{
                 }
             });
             return { ...state, tiles: tiles, level: action.payload.level, levelDifficulty: action.payload.levelDifficulty };
-
-        case 'reload_level':
-            console.log("reloading");
-            gameTiles.forEach((item, index) => {
-                if(index==0) {
-                    gameTiles[index].tileMode = "completed";
-                    adjacent_to = item.adjacent_to;
-                }else{
-                    gameTiles[index].tileMode = "blank";
-                }
-            })
-            console.log(gameTiles);
-            /*gameTiles.forEach((tile, index) => {
-
-                if(adjacent_to.includes(tile.tileIndex) && (tile.tileMode == 'blank' || tile.tileMode == 'completed')){
-                    gameTiles[index].tileMode = 'open';
-                }
-            });*/
-            return {...state, tiles: gameTiles, gameOver:false, hasWon: false, completed_words: []};
         case 'game-over':
             return {...state, gameOver: true};
         case 'show-score-modal':
             return {...state, showScoreModal: true};
+        case 'show-win':
+            return {...state, showWin: true};
+        case 'pause-unpause':
+            return {...state, isPaused: !state.isPaused};
         case 'skip-word':
             gameTiles = state.tiles;
             if(state.selectedTileIndex > 0){
                 gameTiles[state.selectedTileIndex].tileMode = 'completed';
                 gameTiles = openAdjacentTiles(gameTiles, state.selectedTileIndex);
             }
+            playSucessClick();
             let hasWon = state.selectedTileIndex == 15;
             let gameOver = hasWon;
-            return {...state, tiles: gameTiles, hasWon: hasWon, gameOver: gameOver};
-        default:
-            return initialState;
+            console.log("has won skip");
+            console.log(gameOver);
+            return {...state, tiles: gameTiles, hasWon: hasWon, gameOver: gameOver, selectedTileIndex: -1};
         }
 }
-
-/*export function gameStateInitializer(){
-    let gameTiles: TileState[] = [];
-    let adjacent_to: number[] = [];
-    data.maze.forEach((item, index) => {
-        let tilemode: TileMode = index == 0 ? 'open' : 'blank';
-        let arrows = [];
-        if(index == 0){
-            adjacent_to = item.adjacent_to;
-            arrows = adjacent_to;
-        }
-        gameTiles.push({tileMode: tilemode, arrowsTo: arrows, tileIndex: index, word: "", adjacent_to: item.adjacent_to, selected: false});
-      });
-    
-    gameTiles.forEach((tile, index) => {
-        if(adjacent_to.includes(tile.tileIndex) && tile.tileMode == 'blank'){
-            gameTiles[index].tileMode = 'blank';
-        }
-    });
-    return {
-        ...initialState,
-        currentWord: "",
-        prevWord: "",
-        tiles: gameTiles
-    }
-}*/
 
 export const gameManagerContext = createContext<{
                         state: GameState,
@@ -193,3 +164,24 @@ export const gameManagerContext = createContext<{
                             state: initialState,
                             dispatch: () => undefined
                         });
+
+/*
+case 'reload_level':
+            let newtiles: TileState[] = [];
+            gameTiles.forEach((item, index) => {
+                let arrows = [];
+                let tilemode: TileMode = index == 0 ? 'completed' : 'blank';
+                if(index==0) {
+                    adjacent_to = item.adjacent_to;
+                    arrows = adjacent_to;
+                }
+                newtiles.push({tileMode: tilemode, arrowsTo: arrows, tileIndex: index, word: item.word, adjacent_to: item.adjacent_to, selected: false});
+            });
+            newtiles.forEach((tile, index) => {
+                if(adjacent_to.includes(tile.tileIndex) && tile.tileMode == 'blank'){
+                    newtiles[index].tileMode = 'open';
+                }
+            });
+
+            return {...initialState, tiles: newtiles, level: state.level, levelDifficulty: state.levelDifficulty};
+            */

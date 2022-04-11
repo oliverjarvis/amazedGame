@@ -1,7 +1,8 @@
 import { createContext, useEffect, useState } from "react";
 import {Audio} from "expo-av";
-
-
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./redux/reducers";
+import { decreaseMusic, decreaseSFX, increaseMusic, increaseSFX } from "./redux/actions";
 export const SoundManagerContext = createContext<Audio.Sound>( null );
 
 export const changeVolume  = async (sound: Audio.Sound, volume) => {
@@ -11,20 +12,69 @@ export const changeVolume  = async (sound: Audio.Sound, volume) => {
 const soundObject = new Audio.Sound();
 const failObject = new Audio.Sound();
 const successObject = new Audio.Sound();
+const winClick = new Audio.Sound();
+const buttonClickObject = new Audio.Sound();
 
-export async function changeMusicVolAsync(){
-    await soundObject.setVolumeAsync(0.2);
+export async function changeMusicVolAsync(volume, direction){
+    let vol = volume;
+    if(direction == "down"){
+        vol = (vol - 1) / 5.0;
+    }else{
+        vol = (vol + 1) / 5.0;
+    }
+
+    vol = Math.min(Math.max(vol, 0), 1);
+    console.log(vol);
+    await soundObject.setVolumeAsync(vol);
+}
+
+export async function muteunmute(volume, direction){
+    let vol = volume;
+    if(direction == "down"){
+        vol = (vol - 1) / 5.0;
+    }else{
+        vol = (vol + 1) / 5.0;
+    }
+
+    vol = Math.min(Math.max(vol, 0), 1);
+    console.log(vol);
+    await soundObject.setVolumeAsync(vol);
+}
+
+export async function changeSFXVolAsync(volume, direction){
+        let vol = volume;
+        if(direction == "down"){
+            vol = (vol - 1) / 5.0;
+        }else{
+            vol = (vol + 1) / 5.0;
+        }
+        vol = Math.min(Math.max(vol, 0), 1);
+        await buttonClickObject.setVolumeAsync(vol);
+        await failObject.setVolumeAsync(vol);
+        await successObject.setVolumeAsync(vol);
 }
 
 export function playError(){
     failObject.playAsync();
-    console.log("played error")
+}
+
+export async function playButtonClick(){
+    await buttonClickObject.replayAsync();
+}
+
+export async function playSucessClick(){
+    await successObject.replayAsync();
+}
+
+export async function playFailClick(){
+    await failObject.replayAsync();
 }
 
 export default function SoundManagerProvider(props: any){
     const [playing, setPlaying] = useState(false);
     const [sound, setSound] = useState(null);
-
+    const levelmanager = useSelector((state: RootState) => state.levelmanager);
+    
     useEffect(() => {
         const getSound = async () => {
             await Audio.setIsEnabledAsync(true);
@@ -35,9 +85,21 @@ export default function SoundManagerProvider(props: any){
                 shouldDuckAndroid: false,
                 interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
               });
-            await soundObject.loadAsync(require('./assets/audio/happy.mp3'))
-            await failObject.loadAsync(require('./assets/audio/fail.wav'))
-            await successObject.loadAsync(require('./assets/audio/correct.mp3'))
+            await soundObject.loadAsync(require('./assets/audio/happy.mp3'));
+            await soundObject.setVolumeAsync(levelmanager.musicVolume / 5.0);
+
+            await buttonClickObject.loadAsync(require('./assets/audio/buttonclick.mp3'));
+            //await buttonClickObject.setVolumeAsync(levelmanager.sfxVolume);
+
+            await failObject.loadAsync(require('./assets/audio/fail.wav'));
+            //await failObject.setVolumeAsync(levelmanager.sfxVolume);
+
+            await successObject.loadAsync(require('./assets/audio/correct.mp3'));
+            //await successObject.setVolumeAsync(levelmanager.sfxVolume);
+
+            await winClick.loadAsync(require('./assets/audio/winclick.mp3'));
+            //await winClick.setVolumeAsync(levelmanager.sfxVolume);
+
         }
 
         const playSound = async(sound) => {
@@ -45,7 +107,7 @@ export default function SoundManagerProvider(props: any){
         }
     
         getSound().then((item)=> {
-            //playSound(item);
+            playSound(item);
         });
     }, []);
     

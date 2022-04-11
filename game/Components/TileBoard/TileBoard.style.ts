@@ -15,14 +15,14 @@ const styles = StyleSheet.create({
       backgroundColor: 'transparent',
       borderRadius: 15,
       bottom: 0,
-      zIndex: 9999,
+      zIndex: 2,
     },
     horizontalArrow: {
       width: "3.33%", 
       margin:"1%", 
       aspectRatio: 10/17,
       flexShrink: 1,
-      zIndex: 9999,
+      zIndex: 2,
     },
     verticalArrow:{
       height: "100%", 

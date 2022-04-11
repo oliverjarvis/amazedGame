@@ -9,6 +9,7 @@ import TabOneScreen from '../screens/MainMenu';
 import GameScreen from '../screens/GameScreen';
 import LinkingConfiguration from './LinkingConfiguration';
 import LevelSelector from '../screens/LevelSelector';
+import HowToPlay from "../screens/HowToPlay";
 import Credits from '../screens/Credits';
 import { StatusBar } from 'expo-status-bar';
 
@@ -35,7 +36,7 @@ function RootNavigator() {
       <Stack.Screen name="Main Menu" component={TabOneScreen} options={{ headerShown: false}}/>
       <Stack.Screen name="LevelSelector" component={LevelSelector} options={{ headerShown: false }} />
       <Stack.Screen name="GameScreen" component={GameScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Credits" component={Credits} options={{ headerShown: false }} />
+      <Stack.Screen name="How To Play" component={HowToPlay} options={{ headerShown: true }} />
     </Stack.Navigator>
   );
 }

@@ -7,6 +7,8 @@ export enum CompletionType{
 
 export interface LevelMeta{
     levelID: string;
+    levelDifficulty: string;
+    levelName: string;
     completionType: CompletionType
 };
 

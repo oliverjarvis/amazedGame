@@ -13,18 +13,10 @@ import { spendSkip, incrementSkip } from '../../redux/actions';
 
 import RewardedModal from "./Modals/RewardedModal";
 import { loadAd } from '../../constants/Ads';
+import SettingsModal from './Modals/SettingsModal';
+import ConfirmationModal from './Modals/ConfirmationModal';
 
 let arrowRight = require('../../assets/images/arrowright.png');
-
-async function showInterstitialRewardedAd(){
-  await AdMobRewarded.setAdUnitID('ca-app-pub-3940256099942544/5224354917'); // Test ID, Replace with your-admob-unit-id
-  try{
-    await AdMobRewarded.requestAdAsync();
-  }catch(e){
-    console.log(e);
-  }
-  await AdMobRewarded.showAdAsync();
-}
 
 const InputTiles = memo(() => {
 
@@ -34,6 +26,7 @@ const InputTiles = memo(() => {
   const levelmanager = useSelector((state: RootState) => state.levelmanager);
   const levelManagerDispatch = useDispatch();
 
+  const [showConfirmationBox, setShowConfirmationBox] = useState(false);
 
   let tile_count = 4;
   const [textValue, setTextValue] = useState("");
@@ -72,12 +65,15 @@ const InputTiles = memo(() => {
   }, [state.guesses])
 
   function useSkip(){
-    if(levelmanager.skips > 0){
-      dispatch({type:'skip-word'});
-      levelManagerDispatch(spendSkip());
-    }else{
-      setShowSkipWordModal(true);
-    }
+      if(levelmanager.skips > 0){
+        dispatch({type:'skip-word'});
+        levelManagerDispatch(spendSkip());
+      }else{
+        setShowConfirmationBox(false);
+        setShowSkipWordModal(true);
+      }
+    
+    setShowConfirmationBox(false);
   }
 
   useEffect(() => {
@@ -86,14 +82,17 @@ const InputTiles = memo(() => {
     AdMobRewarded.addEventListener("rewardedVideoUserDidEarnReward", () => {
         levelManagerDispatch(incrementSkip());
         setShowSkipWordModal(false);
+        dispatch({type: "pause-unpause"});
     });
   
     AdMobRewarded.addEventListener("rewardedVideoDidFailToLoad", () => {
       loadAd();
+      dispatch({type: "pause-unpause"});
     });
     AdMobRewarded.addEventListener("rewardedVideoDidDismiss", () =>{
       if(levelmanager.skips > 0){
         dispatch({type:'skip-word'});
+        dispatch({type: "pause-unpause"});
       }
       setShowSkipWordModal(false);
     })
@@ -109,7 +108,7 @@ const InputTiles = memo(() => {
   return (
         <>
         <View style={styles.outerboard}>
-          <SkipPowerup powerupcount={levelmanager.skips} onPress={() => useSkip()}/>
+        <HintPowerup powerupcount={levelmanager.hints} onPress={() => {if(state.selectedTileIndex > -1) dispatch({type:'skip-word'})}}/>
           <View style={styles.inputboard}>
             {Array(tile_count).fill(0).map((item, i) => {
 
@@ -133,7 +132,6 @@ const InputTiles = memo(() => {
                   shake.value = withSequence(withTiming(-5, {duration: 50}), withTiming(10, {duration: 100}), withTiming(0, {duration: 50}));
                   if(i==0){
                     playError();
-                    console.log("hello:)")
                   }
                 }
               }, [state.guesses]);
@@ -165,9 +163,10 @@ const InputTiles = memo(() => {
                 );
             })}
           </View>
-          <HintPowerup powerupcount={levelmanager.hints} onPress={() => dispatch({type:'skip-word'})}/>
+          <SkipPowerup powerupcount={levelmanager.skips} onPress={() => {console.log(state.selectedTileIndex); if(state.selectedTileIndex > -1) setShowConfirmationBox(true)}}/>
         </View>
-        {showSkipWordModal && <RewardedModal powerup="skip" setCloseModal={setShowSkipWordModal}/>}
+        <RewardedModal powerup="skip" showModal={showSkipWordModal} setCloseModal={setShowSkipWordModal} />
+        <ConfirmationModal confirmation="Spend skip?" show={showConfirmationBox} setshow={setShowConfirmationBox} callback={useSkip}/>
         </>
   );
 });

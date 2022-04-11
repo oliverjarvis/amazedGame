@@ -1,6 +1,6 @@
-import { easylevels } from "../../assets/levels/easy/levels_metadata";
-import { normallevels } from "../../assets/levels/normal/levels_metadata";
-import { hardlevels } from "../../assets/levels/hard/levels_metadata";
+import { easylevels } from "../../assets/levels/easy/levels_metadata.js";
+import { normallevels } from "../../assets/levels/normal/levels_metadata.js";
+import { hardlevels } from "../../assets/levels/hard/levels_metadata.js";
 
 enum CompletionType{
     locked = "l",
@@ -12,14 +12,18 @@ enum CompletionType{
 interface LevelMeta{
     levelID: number;
     levelDifficulty: string;
-    completionType: CompletionType
+    levelName: string;
+    completionType: CompletionType;
 }
 
 interface GameState{
     activeLevel: LevelMeta,
     levels: LevelMeta[],
     skips: number,
-    hints: number
+    hints: number,
+    sfxVolume: number,
+    musicVolume: number,
+    last_handout_date: number,
 }
 
 let levelMeta: LevelMeta[] = 
@@ -27,6 +31,7 @@ let levelMeta: LevelMeta[] =
                         (
                             {   levelID: item.id,
                                 levelDifficulty: item.difficulty,
+                                levelName: item.title,
                                 completionType: item.id == 0 ? CompletionType.unlocked : CompletionType.locked
                             }
                         )
@@ -37,12 +42,17 @@ let initialGameState: GameState = {
     hints: 1,
     activeLevel: null,
     levels: levelMeta,
-    skips: 1,
+    skips: 0,
+    sfxVolume: 2,
+    musicVolume: 2,
+    last_handout_date: undefined
 }
 
 const levelmanagerReducer = (state = initialGameState, action) => {
     let activeLevel = state.activeLevel;
     let levels = state.levels;
+    let musicVolume = state.musicVolume;
+    let sfxVolume = state.sfxVolume;
     switch(action.type){
         case 'SET-LEVEL-PROGRESS':
             state.levels.forEach((item, index) => {
@@ -51,8 +61,6 @@ const levelmanagerReducer = (state = initialGameState, action) => {
                     activeLevel.completionType = action.payload.completionType;
                 }
                 if(action.payload.completionType == CompletionType.completed){
-                    console.log(item.levelID);
-                    console.log(state.activeLevel.levelID + 1);
                 }
                 if(item.levelID == state.activeLevel.levelID + 1 && (action.payload.completionType == CompletionType.completed || action.payload.completionType == CompletionType.perfected)){
                     if(item.levelDifficulty == state.activeLevel.levelDifficulty){
@@ -73,14 +81,28 @@ const levelmanagerReducer = (state = initialGameState, action) => {
         case 'INCREMENT-SKIPS':
             return {...state, skips: (state.skips + action.payload as number)};
         case 'SPEND-SKIP':
-            console.log("hello");
             return {...state, skips: (state.skips - 1 as number)};
         case 'INCREMENT-HINT':
             return {...state, hints: (state.hints + action.payload as number)};
         case 'SPEND-HINT':
             return {...state, hints: (state.hints - 1 as number)};
+        case 'increase-music':
+            musicVolume = Math.round(Math.min(state.musicVolume + 1, 5));
+            return {...state, musicVolume: musicVolume};
+        case 'decrease-music':
+            musicVolume = Math.round(Math.max(state.musicVolume - 1, 0));
+            return {...state,  musicVolume: musicVolume};
+        case 'increase-sfx':
+            sfxVolume = Math.round(Math.min(state.sfxVolume + 1, 5));
+            return {...state,  sfxVolume: sfxVolume};
+        case 'decrease-sfx':
+            sfxVolume = Math.round(Math.max(state.sfxVolume - 1, 0));
+            return {...state,  sfxVolume: sfxVolume};
         case 'RESET':
             return {...initialGameState};
+        case 'update-handout-date':
+            console.log(state.skips);
+            return {...state, last_handout_date: action.payload, skips: (state.skips + 2 as number)};
         default:
             return state;
     }

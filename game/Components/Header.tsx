@@ -1,56 +1,54 @@
 import { memo, useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/reducers";
 import { gameManagerContext } from "../GameLogic";
+import InGameSettingsModal from "./Modals/InGameSettingsModal";
+import { SkipPowerup } from "./PowerupBar";
 import { ProgressBar } from "./ProgressBar";
 
+let gearIcon = require("../../assets/images/gearIcon.png")
+
+//        <Text style={{fontSize: 20, textAlign: 'center', textAlignVertical:"center", color: 'black'}}>⚙️</Text>
 
 
 
-const SettingsIcon = memo(() => {
+const SettingsIcon = memo(({onPress}:{onPress: any}) => {
   return (
-    <View style={{flexBasis:"20%", flexShrink: 1, backgroundColor:'transparent'}}>
-        <Text style={{fontSize: 20, textAlign: 'center', textAlignVertical:"center", color: 'black'}}>⚙️</Text>
-    </View>
+    <TouchableOpacity onPress={() => onPress(true)} style={{width:"20%", height: '100%', justifyContent:'center', alignItems:'center', flexShrink: 1, backgroundColor:'transparent'}}>
+        <View style={{height: "50%", flexShrink: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Image source={gearIcon} style={{flexShrink: 1, aspectRatio: 1, height: "100%"}}/>
+        </View>
+    </TouchableOpacity>
   )
 });
 
-export const Header = memo(({level_id}:{level_id? : number}) => {
+export const Header = memo(({setSettingsPressed, level_id}:{level_id? : number, setSettingsPressed: any}) => {
     const levelCompletionTime = 160.0;
     const {state, dispatch} = useContext(gameManagerContext);
-
-    const [time, setTime] = useState(levelCompletionTime);
-    const [deltaTime, setDeltaTime] = useState(0);
+    
     const insets = useSafeAreaInsets();
 
-    useEffect(() => {
-        if(!state.gameOver){
-        let interval = setInterval(() => {
-          setTime(time => time - 0.1);
-        }, 100);
-        if(time <= 0){
-          dispatch({type:"game-over"});
-        }
-        return () => clearInterval(interval);
-      }
-      }, [time]);
-    
-    useEffect(() => {
-      if(!state.gameOver){
-        setTime(levelCompletionTime);
-      }
-    }, [state.gameOver])
+    //const [settingsPressed, setSettingsPressed] = useState(false);
 
-      
+    function progressBarFinish(){
+      dispatch({type: "game-over"});
+    }
+    
+  
     return (
+        <>
         <View style={{...styles.header, paddingTop:insets.top, paddingBottom: 10}}>
           <View style={{width: "20%"}}></View>
-            <View style={{flexDirection:"column", flexBasis: "60%",  alignItems:"center"}}>
-            <Text style={{color: 'white', fontSize:25, fontWeight: 'bold', paddingBottom: 10, paddingTop: 10, textAlign:"center"}}>Level {level_id + 1}</Text>
-            <ProgressBar height={20} width={250} />
+            <View style={{flexDirection:"column", flexBasis: "60%",  alignItems:"center", backgroundColor: 'transparent'}}>
+              <Text style={{color: 'white', fontSize:21, fontWeight: 'bold', paddingBottom: 10, paddingTop: 10, textAlign:"center"}}>Level {level_id + 1}</Text>
+              <ProgressBar duration={100000} isPaused={state.isPaused} height={20} width={"100%"} callback={progressBarFinish}/>
             </View>
-            <SettingsIcon/>
+            <SettingsIcon onPress={setSettingsPressed}/>
         </View>
+        </>
     );
 });
 

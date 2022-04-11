@@ -17,11 +17,9 @@ const soundmanagerReducer = (state = initialSoundState, action) => {
     switch(action.type){
         case 'increase-music':
             musicVolume = Math.min(state.musicVolume + 0.2, 1.0);
-            console.log(":)")
             return {...state, musicVolume: musicVolume};
         case 'decrease-music':
             musicVolume = Math.max(state.musicVolume - 0.2, 0.0);
-            console.log(":)")
             return {...state,  musicVolume: musicVolume};
         case 'increase-sfx':
             return state;

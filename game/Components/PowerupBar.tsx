@@ -1,17 +1,29 @@
-import { memo } from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native"
+import { memo, useState } from "react";
+import { TouchableOpacity, View, Text, StyleSheet, Image } from "react-native"
+import SettingsModal from "./Modals/SettingsModal";
 
 const typedMemo: <T>(c: T) => T = memo;
+let powerupImage = require("../../assets/images/powerupbutton2.png");
 
 
 const Button = ( { text, powerupcount, onPress }) => {
+
+    const [showModal, setShowModal] = useState(true);
+
     return (
+      <>
       <TouchableOpacity onPress={onPress} style={styles.insetStyle}>
-        <View style={styles.outsetStyle}>
-          <Text style={{fontSize: 14,  fontWeight:'bold', textAlign: 'center', padding:0, textAlignVertical:"center", color: '#fff'}}>{ powerupcount }</Text>
-          <Text style={{fontSize: 14,  fontWeight:'bold', textAlign: 'center', padding:2, textAlignVertical:"center", color: '#fff'}}>{ text }</Text>
+        <View style={styles.imageContainerStyle}>
+          <Image source={powerupImage} style={{width: "100%", aspectRatio: 1, flexShrink: 1}}/>
+          <View style={{position:'absolute', height: "100%", justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{width: "80%", padding: 2, borderRadius: 20, backgroundColor: '#E47070', justifyContent: 'center', alignItems: 'center'}}>
+              <Text style={{fontSize: 13, fontWeight: 'bold', textAlign: 'center', padding:0, textAlignVertical:"center", color: '#fff'}}>{ powerupcount }</Text>
+            </View>
+            <Text style={{fontSize: 20, textAlign: 'center', padding:0, fontWeight: 'bold', textAlignVertical:"center", color: '#fff'}}>{ text }</Text>
+          </View>
         </View>
       </TouchableOpacity>
+      </>
       );
 };
 
@@ -28,10 +40,18 @@ export const SkipPowerup = ({onPress, powerupcount}) => {
 let styles = StyleSheet.create({
   insetStyle:{
     flexShrink:1,
+    width: "15%",
     aspectRatio: 1,
     alignContent: "center",
     borderRadius: 5,
     justifyContent: 'flex-start',
+    backgroundColor: 'transparent',
+  },
+  imageContainerStyle:{
+    width:"100%", 
+    aspectRatio: 1,
+    alignItems:'center', 
+    flexShrink: 1,
     backgroundColor: 'transparent',
   },
   outsetStyle:{

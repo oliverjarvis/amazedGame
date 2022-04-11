@@ -4,7 +4,7 @@ export const styles = StyleSheet.create({
     tileImage:{
       height: '100%',
       aspectRatio: 1,
-      zIndex: 99999,
+      zIndex: 2,
     },
     outer:{
       display: 'flex',
@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
       flexBasis: '21%',
       aspectRatio: 1,
       flexShrink: 1,
-      zIndex: 99999,
+      zIndex: 3,
     },
     outset:{
       width: '100%',
@@ -24,31 +24,31 @@ export const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 10,
-      zIndex: 99999,
+      zIndex: 2,
     },
     outsetCompleted:{
       backgroundColor: '#FFCC00',
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     outsetOpen:{
       backgroundColor: '#65C877',
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     outsetSelected:{
       backgroundColor: '#21712F',
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     outsetBlank:{
       backgroundColor: 'transparent',
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     inset:{
       alignContent: "center",
-      zIndex: 99999,
+      zIndex: 2,
 
       width: '100%',
       aspectRatio: 1,
@@ -57,36 +57,37 @@ export const styles = StyleSheet.create({
     },
     insetCompleted:{
       backgroundColor: '#A88600',
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     insetBlank:{
       backgroundColor: 'transparent',
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     insetOpen:{
       backgroundColor: '#21712F',
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     insetSelected:{
       backgroundColor: '#214422',
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     endGoal:{
       position: 'relative',
       height: '90%',
       aspectRatio: 1,
-      zIndex: 99999,
+      zIndex: 2,
 
     },
     buttonText:{
       width: '100%',
       padding: 6,
-      zIndex: 999999,
-      fontSize: 18,
+      zIndex: 3,
+      fontSize: 17,
+      backgroundColor: 'transparent',
       fontWeight: 'bold',
       textAlign: 'center',
       textAlignVertical: 'center',

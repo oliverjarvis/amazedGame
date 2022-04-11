@@ -5,16 +5,13 @@ import { memo } from "react";
 
 const ShinyGradient = (props: any) => {
     return (
-      <LinearGradient
+      <View
           // Background Linear Gradient
-          start ={{x: 0, y: 0}}
-          end = {{x:1.0, y:1}}
           pointerEvents='none'
-          colors={['rgba(255, 208, 0, 1.0)', 'rgba(253, 208, 0, 0.9)', 'rgba(255, 208, 0, 0.5)','rgba(253, 208, 0, 0.9)', 'rgba(253, 208, 0, 1.0)']}
-          style={{height: "80%", justifyContent: 'center', alignItems: 'center', aspectRatio: 1, borderRadius:9999, overflow: 'hidden'}}>
+          style={{height: "80%",  zIndex: 999, justifyContent: 'center', alignItems: 'center', aspectRatio: 1, borderRadius:9999, overflow: 'hidden', backgroundColor: 'gold'}}>
             {props.children}
             <LottieView source={require('../../assets/lottiefiles/layer.json')} autoPlay loop={true} style={{position:'absolute', width: "100%", zIndex: 1000}}/>
-      </LinearGradient>);
+      </View>);
   }
   
   const LevelIcon = memo(({backgroundColor, itemid}: {backgroundColor: string, itemid: number}) => (
@@ -29,10 +26,10 @@ const ShinyGradient = (props: any) => {
       <>
         <View pointerEvents='none' style={{width: "22%", elevation: 4, backgroundColor: "white", aspectRatio: 1, borderRadius: 999, justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
           <ShinyGradient>
-            <Text style={{fontSize: 30, color:"#444", fontWeight: 'bold'}}>{item.levelID + 1}</Text>
+            <Text style={{fontSize: 30, zIndex: 999, color:"#444", fontWeight: 'bold'}}>{item.levelID + 1}</Text>
           </ShinyGradient>
         </View>
-        <LottieView source={require('../../assets/lottiefiles/4436-celebrating-stars.json')} autoPlay loop={false} style={{ position:'absolute', height: "100%", width: "100%", zIndex: 1000}}/>
+        <LottieView source={require('../../assets/lottiefiles/4436-celebrating-stars.json')} autoPlay loop={true} style={{ position:'absolute', height: "100%", width: "100%", zIndex: 1000}}/>
         </> 
     );
   }

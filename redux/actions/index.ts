@@ -65,8 +65,35 @@ export const spendHint = () => {
     }
 }
 
+export const increaseMusic = () => {
+    return {
+        type: 'increase-music'
+    }
+}
+export const decreaseMusic = () => {
+    return {
+        type: 'decrease-music'
+    }
+}
+export const increaseSFX = () => {
+    return {
+        type: 'increase-sfx'
+        }
+}
+export const decreaseSFX = () => {
+    return {
+        type: 'decrease-sfx'
+    }
+}
 export const reset = () => {
     return {
         type: 'RESET'
+    }
+}
+
+export const updateHandoutDate = (date: number) => {
+    return {
+        type: 'update-handout-date',
+        payload: date
     }
 }

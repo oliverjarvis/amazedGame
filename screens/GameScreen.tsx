@@ -1,14 +1,24 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { StyleSheet, Image, TouchableOpacity, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useState, useReducer, useContext } from 'react';
+import React, { useState, useReducer, useContext, useEffect } from 'react';
 import Game from '../game/Game';
 import { LinearGradient } from 'expo-linear-gradient';
 import LevelProvider from '../game/Providers/LevelProvider';
-
+import {
+  AdMobBanner,
+  AdMobInterstitial,
+  PublisherBanner,
+  AdMobRewarded,
+  setTestDeviceIDAsync,
+} from 'expo-ads-admob';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { gameManagerContext } from '../game/GameLogic';
 
 export default function GameScreen({ route, navigation }) {
   const { levelID, levelDifficulty } = route.params;
+  const allowedExit: boolean = false;
+
   return (
     <View style={{...styles.window}}>
       <LinearGradient

@@ -4,7 +4,7 @@
     "slug": "amazed",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/APPICON.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -28,8 +28,9 @@
     "ios": {
       "supportsTablet": true,
       "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3940256099942544~1458002511"
-      }
+        "googleMobileAdsAppId": "ca-app-pub-3899429663512482~8191871085"
+      },
+      "bundleIdentifier": "app.dfdf.dfasd"
     },
     "android": {
       "adaptiveIcon": {

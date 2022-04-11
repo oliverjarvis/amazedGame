@@ -1,26 +1,50 @@
+import { useContext } from "react";
 import { View, Text, TouchableOpacity} from "react-native";
 import showInterstitialRewardedAd from "../../../constants/Ads";
+import { gameManagerContext } from "../../GameLogic";
+import { Modal, ModalContent, ModalHeader, ModalQuit } from "./Modal";
 
-const RewardedModal = ({powerup, setCloseModal}:{powerup: "skip" | "hint", setCloseModal: any}) => {
+
+const SettingsModal = ({setCloseModal, showModal}:{setCloseModal: any, showModal: any}) => {
+
+  return (
+      <Modal showModal={showModal}>
+        <ModalQuit setCloseModal={setCloseModal}/>
+        <ModalHeader header="Settings" />
+        <ModalContent>
+          <View style={{justifyContent: 'space-between', alignItems: 'center', width: "80%"}}>
+            <View style={{alignItems: 'center'}}> 
+              
+            </View>
+          </View>
+        </ModalContent>
+      </Modal>
+  );
+}
+
+const RewardedModal = ({powerup, showModal, setCloseModal}:{powerup: "skip" | "hint", showModal: any, setCloseModal: any}) => {
+
+    const {state, dispatch} = useContext(gameManagerContext);
+
     return (
       <>
-      <View style={{position: 'absolute', height: '100%', width: '100%', backgroundColor: "rgba(0,0,0,0.2)", justifyContent: 'center', alignItems: 'center'}}>
-          <View style={{backgroundColor: '#fff', width: "80%", aspectRatio: 3/2, elevation: 5, borderRadius: 20, flexDirection: 'column', justifyContent: 'flex-end'}}>
-            <View style={{flexGrow: 1, backgroundColor: 'transparent', padding: "5%", paddingTop: 0, justifyContent: 'center', alignItems: 'center'}}>
-              <View style={{width: "100%", justifyContent: 'flex-end', alignItems: 'flex-end'}}>
-              <TouchableOpacity onPress={() => setCloseModal(false)} style={{display: 'flex', top: 0, backgroundColor: 'white', elevation: 5, padding: 5, aspectRatio: 1, borderRadius: 999, justifyContent: 'flex-end', alignItems: 'center'}}>
-                <Text >X</Text>
-              </TouchableOpacity>
-              </View>
-              <Text style={{color: "#444", fontSize: 20}}>Oh no!</Text>
-              {powerup == "skip" && <Text style={{color: "#444", fontSize: 20}}>No more skips left!</Text>}
-              {powerup == "hint" && <Text style={{color: "#444", fontSize: 20}}>No more hints left!</Text>}
+      <Modal showModal={showModal}>
+        <ModalQuit setCloseModal={setCloseModal}/>
+        <ModalHeader header={"Oh no! No more " + powerup + "s!"} />
+        <ModalContent>
+          <View style={{justifyContent: 'space-evenly', height: "100%", width: "100%", alignItems: 'center'}}>
+            <View style={{width: "80%", height: "50%"}}>
+              <Text style={{fontSize:18}}>
+              Get an instant skip by watching a rewarded video ad, or come back tommorow for a free skip and a free hint.
+              </Text> 
             </View>
-            <TouchableOpacity onPress={() => showInterstitialRewardedAd()} style={{ width: "100%", height: "30%", alignItems: 'center', backgroundColor: 'transparent', borderTopColor: "#999", borderTopWidth: 1, justifyContent: 'center'}}>
-              <Text style={{ color: '#444', fontSize: 20}}>Earn two skips</Text>
-            </TouchableOpacity>
+          
+            <TouchableOpacity onPress={() => {showInterstitialRewardedAd(); dispatch({type: 'pause-unpause'})} } style={{ width: "80%", height: "30%", borderRadius: 10, alignItems: 'center', backgroundColor: '#D36F6F',  justifyContent: 'center'}}>
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 30}}>Earn {powerup}!</Text>
+              </TouchableOpacity>
           </View>
-        </View>
+        </ModalContent>
+        </Modal>
       </>
     );
   }

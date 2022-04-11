@@ -1,8 +1,8 @@
 import { useReducer, useEffect } from "react";
 import { gameReducer, gameManagerContext, initialState} from "../GameLogic";
-import { easylevels } from "../../assets/levels/easy/levels_metadata";
-import { normallevels } from "../../assets/levels/normal/levels_metadata";
-import { hardlevels } from "../../assets/levels/hard/levels_metadata";
+import { easylevels } from "../../assets/levels/easy/levels_metadata.js";
+import { normallevels } from "../../assets/levels/normal/levels_metadata.js";
+import { hardlevels } from "../../assets/levels/hard/levels_metadata.js";
 import { LevelData } from "../../assets/levels/interfaces";
 
 

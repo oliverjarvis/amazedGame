@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, View, Text, Pressable, Modal, StyleSheet, FlatList } from 'react-native';
+import { Alert, View, Text, Pressable, Modal, StyleSheet, FlatList, Platform } from 'react-native';
 import { useContext } from 'react';
 import { TileState } from '../../GameLogic';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +18,8 @@ import {
   AdMobRewarded,
   setTestDeviceIDAsync,
 } from 'expo-ads-admob';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { CommonActions } from '@react-navigation/native';
 
 enum CompletionState {
   unlocked = "u",
@@ -26,8 +28,10 @@ enum CompletionState {
   perfected = "p"
 }
 
+
+
 async function showAdsAndNavigate(navigationEvent){
-  await AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712'); // Test ID, Replace with your-admob-unit-id
+  await AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1712485313'); // Test ID, Replace with your-admob-unit-id
   try{
     await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true});
   }catch(e){
@@ -38,12 +42,45 @@ async function showAdsAndNavigate(navigationEvent){
 }
 
 const FailButtons = ({navigation, levelid, setVisible}:{navigation:any, levelid:number, setVisible:any}) => {
+  const { state } = useContext(gameManagerContext);
+
+  async function showAdsAndNavigate(e){
+    const AdUnitId = Platform.select({
+      ios: "ca-app-pub-3899429663512482/2505264283",
+      android: "ca-app-pub-3899429663512482/5260006869"
+    });
+    await AdMobInterstitial.setAdUnitID(AdUnitId); // Test ID, Replace with your-admob-unit-id
+    try{
+      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true});
+    }catch(e){
+      console.log(e);
+    }
+    await AdMobInterstitial.showAdAsync();
+    navigation.dispatch(e.data.action);
+  }
+  
+  useEffect(
+    () =>
+      navigation.addListener('beforeRemove', (e) => {
+        // Prevent default behavior of leaving the screen
+        e.preventDefault();
+        if(state.gameOver){
+          console.log("Not showing!")
+          showAdsAndNavigate(e);
+        }else{
+          console.log("GO HERE");
+          navigation.dispatch(e.data.action);
+        }
+      }),
+    [navigation]
+  );
+
   return (
-    <View style={{flexDirection:"column", height: "20%", width:"80%", alignItems:'center'}}>
+    <View style={{flexDirection:"row", height: "15%", width:"80%", alignItems:'center', justifyContent: 'center'}}>
       <Pressable style={styles.buttonNext} onPress={() => { setVisible(false); }}>
         <Text style={{fontSize: 20, fontWeight:'bold', textAlign:'center', color:'white'}}>Retry</Text>
       </Pressable>
-      <Pressable style={styles.button} onPress={() => { showAdsAndNavigate(() => navigation.navigate("LevelSelector")); }}>
+      <Pressable style={styles.button} onPress={() => { navigation.navigate("LevelSelector");/*showAdsAndNavigate(() => navigation.navigate("LevelSelector")); }*/}}>
         <Text style={{fontSize: 20, fontWeight:'bold', textAlign:'center', color:"#fff"}}>Next</Text>
       </Pressable>
     </View>
@@ -75,9 +112,20 @@ export default function LevelScore({navigation, gameOver, hasWon, completedWords
   const [gameResult, setGameresult] = useState<CompletionType>(CompletionType.unlocked);
   const levelmanagerdispatch = useDispatch();
 
+
+  let [pointerEventType, setPointerEventType] = useState<"auto" | "none" | "box-none" | "box-only">("box-none");
+    useEffect(()=> {
+      if(state.showScoreModal){
+        setPointerEventType("auto");
+      }else{
+        setPointerEventType("box-none");
+      }
+
+    }, [state.showScoreModal])
+
   useEffect(() => {
     if(!visible){
-      dispatch({type:'reload_level'});
+      navigation.replace("GameScreen", {levelID: state.level, levelDifficulty: state.levelDifficulty});
     }
     setVisible(true);
   }, [visible])
@@ -102,24 +150,38 @@ export default function LevelScore({navigation, gameOver, hasWon, completedWords
     }
   }, [gameOver])
 
+
+  //
+  const slideAmount = useSharedValue(1000);
+  const slideStyle = useAnimatedStyle(()=>{
+    return{
+      transform: [{translateX: slideAmount.value}]
+    };
+  }, [])
+
+  useEffect(()=>{
+    if(state.showScoreModal){
+      slideAmount.value = withTiming(0, {duration: 1000});
+    }
+  }, [state.showScoreModal])
   return (
-    <Modal
-        animationType="fade"
-        transparent={true}
-        visible={gameOver}
-        onRequestClose={() => {
-          setVisible(false);
-        }}
-      >
-        {gameOver &&
-         <View style={styles.modalView}>
+    <View
+      pointerEvents={pointerEventType}
+      style={{
+        position: 'absolute',
+        width: "100%",
+        zIndex: 99999,
+        height: "100%"
+      }}
+    >   
+         <Animated.View style={[styles.modalView, slideStyle]}>
           <LinearGradient
           // Background Linear Gradient
           start ={{x: 0, y: 0}}
           end = {{x:0, y:1}}
           colors={['#26303F', '#26303F', '#26303F', '#26303F', '#26303F']}
           style={{...styles.background}}>
-                <View style={{flexDirection:"column", width:"100%", marginTop: "10%", height: "20%", alignItems:'center', position: 'absolute', top: 0}}>
+                {gameOver && <><View style={{flexDirection:"column", width:"100%", marginTop: "5%", height: "20%", alignItems:'center', position: 'absolute', top: 0}}>
                   {
                     hasWon 
                       ? 
@@ -137,11 +199,10 @@ export default function LevelScore({navigation, gameOver, hasWon, completedWords
                   </View>
                   <LevelStars levels_completed={completedWords.filter(item => item.tileMode == "completed")}/>
                   <FailButtons navigation={navigation} setVisible={setVisible} levelid={state.level}/>
-                </View>
+                </View></>}
         </LinearGradient>
-        </View>
-        }
-      </Modal>
+        </Animated.View>
+      </View>
   );
 }
 
@@ -187,9 +248,10 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 0,
+    transform: [{translateX: 1000}],
     height: "100%",
     width: "100%",
-    backgroundColor: "white",
+    backgroundColor: "transparent",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -203,18 +265,24 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     textAlign: 'center',
     padding: 16,
-    width: "100%",
+    height: "100%",
+    width: "48%",
     margin: "1%",
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: 'transparent',
     borderColor: "#E1566B",
     borderWidth: 2
   },
   buttonNext:{
     backgroundColor: '#E1566B',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 15,
     textAlign: 'center',
     padding: 16,
-    width: "100%",
+    height: "100%",
+    width: "48%",
     margin: "1%",
   },
   modalText: {

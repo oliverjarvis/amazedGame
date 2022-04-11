@@ -112,7 +112,7 @@ function BoardView() {
               let right_tile = tile_coords.indexOf(index + 1);
               let arrow: null | "left" | "right" =  getArrowDirectionHorizontal(state, left_tile, right_tile);
 
-              return <Image key={index} source={arrow && !vanishArrows && (arrow == "left"? arrowLeft : arrowRight)} style={styles.horizontalArrow} />; 
+              return <Image key={index} source={arrow && (arrow == "left"? arrowLeft : arrowRight)} style={[styles.horizontalArrow, vanishArrows? {opacity: 0} : {opacity: 1}]} />; 
             
             })}
         </View>

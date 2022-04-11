@@ -55,7 +55,6 @@ export default function TabOneScreen({ navigation }) {
   }
 
   useLayoutEffect(() => {
-    console.log("play");
     setupSFX();
   }, []);
 

@@ -30,7 +30,7 @@
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-3899429663512482~8191871085"
       },
-      "bundleIdentifier": "app.dfdf.dfasd"
+      "bundleIdentifier": "com.gibberish.amazed"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,7 +39,8 @@
       },
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-3899429663512482~6621481574"
-      }
+      },
+      "package": "com.gibberish.amazed"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

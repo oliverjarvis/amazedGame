@@ -35,7 +35,7 @@ async function showAdsAndNavigate(navigationEvent){
   try{
     await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true});
   }catch(e){
-    console.log(e);
+    //console.log(e);
   }
   await AdMobInterstitial.showAdAsync();
   navigationEvent();
@@ -44,19 +44,30 @@ async function showAdsAndNavigate(navigationEvent){
 const FailButtons = ({navigation, levelid, setVisible}:{navigation:any, levelid:number, setVisible:any}) => {
   const { state } = useContext(gameManagerContext);
 
-  async function showAdsAndNavigate(e){
+  async function showAdsAndNavigate(event, navigation){
     const AdUnitId = Platform.select({
       ios: "ca-app-pub-3899429663512482/2505264283",
       android: "ca-app-pub-3899429663512482/5260006869"
     });
-    await AdMobInterstitial.setAdUnitID(AdUnitId); // Test ID, Replace with your-admob-unit-id
+    await AdMobInterstitial.setAdUnitID(AdUnitId).catch((e)=>{
+      console.log("Not showing!!!!!!");
+      navigation.dispatch(event.data.action);
+    }); // Test ID, Replace with your-admob-unit-id
     try{
-      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true});
+      await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true}).catch((e) => {
+        //console.log("fuck");
+        navigation.dispatch(event.data.action);
+      });
     }catch(e){
-      console.log(e);
+      console.log("Not showin2g!!!!!!");
+      navigation.dispatch(event.data.action);
+      //console.log(e);
     }
-    await AdMobInterstitial.showAdAsync();
-    navigation.dispatch(e.data.action);
+    await AdMobInterstitial.showAdAsync().catch((e)=>{
+      console.log("Not showin2g!!!!!!");
+      navigation.dispatch(event.data.action);
+    });
+    navigation.dispatch(event.data.action);
   }
   
   useEffect(
@@ -66,7 +77,7 @@ const FailButtons = ({navigation, levelid, setVisible}:{navigation:any, levelid:
         e.preventDefault();
         if(state.gameOver){
           console.log("Not showing!")
-          showAdsAndNavigate(e);
+          showAdsAndNavigate(e, navigation);
         }else{
           console.log("GO HERE");
           navigation.dispatch(e.data.action);

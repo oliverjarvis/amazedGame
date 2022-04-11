@@ -11,18 +11,23 @@ export async function loadAd(){
         android: 'ca-app-pub-3899429663512482/2961146586',
       });
       
-    await AdMobRewarded.setAdUnitID(AdUnitId); // Test ID, Replace with your-admob-unit-id
+    await AdMobRewarded.setAdUnitID(AdUnitId).catch((e)=>{
+        console.log("Ad not ready.");
+        return;
+    })
     try{
     await AdMobRewarded.requestAdAsync();
     }catch(e){
-    console.log(e);
+    return;
     }
 }
 
 export default async function showInterstitialRewardedAd(){
-    await loadAd();
+    await loadAd().catch((e)=>{
+        console.log("Ad Not ready!");
+    });
     await AdMobRewarded.showAdAsync().catch((e)=>{
-        console.log(e);
+        return;
         //showInterstitialRewardedAd();
     });
 }

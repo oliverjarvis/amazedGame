@@ -30,7 +30,12 @@ const Button = ( { text, powerupcount, onPress }) => {
 const MemoButton = typedMemo(Button);
 
 export const HintPowerup = ({onPress, powerupcount}) => {
-  return <MemoButton powerupcount={powerupcount} onPress={onPress} text="Hint"/>; 
+  //return <MemoButton powerupcount={powerupcount} onPress={onPress} text="Hint"/>; 
+  return (
+    <View style={styles.insetStyleEmpty}>
+
+    </View>
+  )
 };
 
 export const SkipPowerup = ({onPress, powerupcount}) => {
@@ -41,6 +46,15 @@ let styles = StyleSheet.create({
   insetStyle:{
     flexShrink:1,
     width: "15%",
+    aspectRatio: 1,
+    alignContent: "center",
+    borderRadius: 5,
+    justifyContent: 'flex-start',
+    backgroundColor: 'transparent',
+  },
+  insetStyleEmpty:{
+    flexShrink:1,
+    width: "0%",
     aspectRatio: 1,
     alignContent: "center",
     borderRadius: 5,

@@ -19,6 +19,8 @@ import SoundManagerProvider from './soundmanager';
 import TrackPlayer, { Capability } from 'react-native-track-player';
 
 import { Audio } from "expo-av";
+import Purchases from 'react-native-purchases';
+import { Platform } from 'react-native';
 
 enableScreens();
 
@@ -58,6 +60,29 @@ export default function App() {
     playMusic();
   }, []);*/
   
+  /*useEffect(() => {
+    const revcat = async() => {
+      Purchases.setDebugLogsEnabled(true);
+
+      if (Platform.OS === 'ios') {
+          await Purchases.setup("public_ios_sdk_key");
+      } else if (Platform.OS === 'android') {
+          await Purchases.setup("goog_NGuHiRUTXiNFaTiLtPkRvGoPSqA");
+      }
+      try {
+        const offerings = await Purchases.getOfferings();
+        console.log(offerings);
+        if (offerings.current !== null) {  
+            console.log(offerings);
+        }
+      } catch (e) {
+      }
+    }
+    revcat();
+    console.log("REVCAT");
+  }, []);*/
+
+
   useEffect(() => {
     async function prepare() {
       try {
